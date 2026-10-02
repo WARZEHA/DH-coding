@@ -1,0 +1,6 @@
+# ภาพต้นฉบับขนาดใหญ่ (เว็บใช้ code-cats-world.webp แทน)
+code-cats-world.png
+
+# ไฟล์ชั่วคราว
+*.log
+.claude/
