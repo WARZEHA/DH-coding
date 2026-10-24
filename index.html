@@ -1857,6 +1857,21 @@
     margin-bottom:5px;
     color:var(--yellow);
   }
+  /* กล่อง Output ที่ต้องได้ + การเทียบคำตอบ (เห็นเว้นวรรคชัด) */
+  .target-output{margin-top:12px;border:2px solid rgba(255,212,95,.45);border-radius:9px;background:#1d1910;overflow:hidden;}
+  .target-output-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:6px 11px;border-bottom:1px solid rgba(255,212,95,.25);color:var(--yellow);font:700 12px 'JetBrains Mono','IBM Plex Sans Thai',monospace;}
+  .target-output-head small{color:#d9c99a;font-weight:600;}
+  .target-output pre{margin:0;padding:10px 12px;color:#fff;font:600 15px/1.75 'JetBrains Mono',monospace;white-space:pre;overflow-x:auto;}
+  .ws{color:rgba(255,212,95,.6);font-weight:700;}
+  .ws-empty{color:#a89d7a;font-style:italic;font-size:12px;}
+  .output-diff{display:grid;gap:6px;margin-top:10px;padding-top:10px;border-top:1px dashed rgba(255,255,255,.2);}
+  .output-diff-title{font-weight:700;}
+  .output-diff-row{display:grid;grid-template-columns:64px minmax(0,1fr);gap:8px;align-items:center;}
+  .output-diff-row > span{font-size:12px;opacity:.85;}
+  .output-diff-row code{display:block;padding:5px 9px;border-radius:6px;background:rgba(0,0,0,.28);font:600 14px/1.6 'JetBrains Mono',monospace;white-space:pre;overflow-x:auto;}
+  .diff-mark{border-radius:3px;background:#ffd45f;color:#081027;box-shadow:0 0 0 1px #ffd45f;}
+  .diff-mark .ws{color:#081027;}
+  .diff-missing{display:inline-block;min-width:.6em;text-align:center;}
   .hello-code-side{
     display:grid;
     gap:14px;
@@ -1933,6 +1948,7 @@
     padding-top:3px;
   }
   .hello-exercise-nav .btn{min-width:150px;}
+  .hello-exercise-nav .next-chapter-btn{background:var(--yellow);color:var(--navy);font-weight:800;}
   .hello-feedback pre{
     margin:10px 0 0;
     padding:12px;
@@ -2003,6 +2019,553 @@
     html{scroll-behavior:auto;}
   }
 </style>
+<style id="pixel-cursor">
+/* เคอร์เซอร์เมาส์แบบพิกเซล (ภาพจาก NES.css — MIT License, ชุดเดียวกับที่ codedex.io ใช้) */
+html{cursor:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAABFklEQVRYR9WXURLDIAhE6/0PbSdOtUpcd1Gnpv1KGpTHBpCE1/cXq+vrMph7dGvXZTtpfW10DCA5jrH1H0Jhs5E0hnZdCR+vb5S8Nn8mQCeS9BdSalYJqMBjAGzq59xAESN7VFVUgV8AZB/dZBR7QTFDCqGquvUBVVoEtgIwpQRzmANSFHgWQKExHdIrPeuMvQNDarXe6nC/AutgV3JW+6bgqQLeV8FekRtgV+ToDKEKnACYKsfZjjkam7a0ZpYTytwmgainpC3HvwBocgKOxqRjehoR9DFKNFYtOwCGYCszobeCbl26N6yyQ6g8X/Wex/rBPsNEV6qAMaJPMynIHQCoSqS9JSMmwef51LflTgCRszU7DvAGiV6mHWfsaVUAAAAASUVORK5CYII=") 0 0,auto;}
+a[href],button:not(:disabled),select,label,summary,[role="button"],[onclick],
+.course-card:not(:disabled),.nav-dropdown-item.available,
+#miniCanvas,.brand,.btn,.check-item,.chip,.diff-card,.game-btn,.hello-exercise-dot,.mini-chip,.nav-link,.opt,.order-btn,
+.outfit-option,.output-step,.python-chapter-card.available,.python-chapter-card.completed,.stage-node,.theme-toggle{cursor:url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAzElEQVRYR+2X0Q6AIAhF5f8/2jYXZkwEjNSVvVUjDpcrGgT7FUkI2D9xRfQETwNIiWO85wfINfQUEyxBG2ArsLwC0jioGt5zFcwF4OYDPi/mBYKm4t0U8ATgRm3ThFoAqkhNgWkA0jJLvaOVSs7j3qMnSgXWBMiWPXe94QqMBMBc1VZIvaTu5u5pQewq0EqNZvIEMCmxAawK0DNkay9QmfFNAJUXfgGgUkLaE7j/h8fnASkxHTz0DGIBMCnBeeM7AArpUd3mz2x3C7wADglA8BcWMZhZAAAAAElFTkSuQmCC") 14 0,pointer;}
+textarea,input:not([type="button"]):not([type="submit"]):not([type="checkbox"]):not([type="radio"]),[contenteditable="true"]{cursor:text;}
+button:disabled,.nav-dropdown-item.locked{cursor:not-allowed;}
+</style>
+<!-- THEME:START โหมดสว่างแบบ codedex.io: หน้าหลักสว่างเฉพาะแถบเมนูและการ์ดคอร์ส หน้าอื่นสว่างทั้งหน้า -->
+<style id="theme-toggle">
+/* ---------- ปุ่มสลับโหมดสว่าง / มืด ---------- */
+.nav-tools{justify-self:end;display:flex;align-items:center;gap:14px;min-width:0;}
+.theme-toggle{display:inline-grid;place-items:center;width:38px;height:38px;padding:0;cursor:pointer;border:2px solid var(--soft-line);border-radius:10px;background:rgba(255,255,255,.04);font-size:18px;line-height:1;transition:border-color .16s,transform .16s,background .16s;}
+.theme-toggle:hover{border-color:var(--mint);transform:translateY(-2px);}
+html[data-theme="light"] .theme-toggle{background:#f1f5f9;border-color:#e2e8f0;}
+@media (max-width:960px){.navbar{grid-template-columns:auto 1fr auto;}}
+@media (max-width:720px){.navbar{grid-template-columns:1fr;}.nav-tools{justify-self:center;}}
+</style>
+<style id="theme-light">
+/* ---------- โหมดสว่าง: แถบเมนูและการ์ดคอร์ส (ทุกหน้า) ---------- */
+html[data-theme="light"] .game-header,
+html[data-theme="light"] .course-card{
+  --navy:#0f172a;--navy-2:#f8fafc;--navy-3:#f1f5f9;
+  --purple:#8b5cf6;--purple-dark:#cbd5e1;--mint:#3b9bff;--yellow:#ffd500;--white:#0f172a;
+  --shadow:#cbd5e1;--pixel-border:#cbd5e1;--soft-line:#cbd5e1;--kw:#3b9bff;
+}
+html[data-theme="light"] .game-header{background:rgba(244,247,250,0.94);border-bottom:3px solid #cbd5e1;box-shadow:0 5px 0 var(--shadow)}
+html[data-theme="light"] .brand{color:#0f172a;background:none;border:0}
+html[data-theme="light"] .brand-mark{border:3px solid var(--pixel-border);background:var(--yellow);color:var(--navy);box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"] .brand-copy strong{color:#0069d9}
+html[data-theme="light"] .brand-copy small{color:#5a7396}
+html[data-theme="light"] .nav-link{border:2px solid transparent;background:transparent;color:#4a5f7c}
+html[data-theme="light"] .nav-link:hover,html[data-theme="light"] .nav-link.active{color:var(--navy);background:#d6ebff}
+html[data-theme="light"] .nav-dropdown.open .nav-dropdown-toggle,html[data-theme="light"] .nav-dropdown-toggle.active{color:var(--navy);background:#d6ebff}
+html[data-theme="light"] .nav-dropdown-menu{border:3px solid var(--pixel-border);background:#f0f4f9;box-shadow:6px 8px 0 var(--shadow),0 0 0 3px rgba(100,116,139,0.158)}
+html[data-theme="light"] .nav-dropdown-menu::before{border:7px solid transparent;border-bottom-color:var(--pixel-border)}
+html[data-theme="light"] .nav-dropdown-head{color:#0069d9}
+html[data-theme="light"] .nav-dropdown-item{border:2px solid transparent;background:transparent;color:#26303f}
+html[data-theme="light"] .nav-dropdown-item .item-icon{border:2px solid var(--pixel-border);background:#f1f5f9;color:#0f172a}
+html[data-theme="light"] .nav-dropdown-item.available:hover,html[data-theme="light"] .nav-dropdown-item.available:focus-visible{background:#f1f5f9;border-color:#3b9bff}
+html[data-theme="light"] .nav-dropdown-item.available .item-icon{background:#d6ebff;color:var(--navy)}
+html[data-theme="light"] .nav-dropdown-item .item-soon{border:2px solid var(--pixel-border);background:var(--yellow);color:var(--navy)}
+html[data-theme="light"] .route-label{color:#7087a9}
+html[data-theme="light"] .route-label b{color:#a16207}
+html[data-theme="light"] .player-hud{border-top:1px solid rgba(68,150,238,0.18);background:#f2f5f9}
+html[data-theme="light"] .nav-link:disabled{color:#7087a9}
+html[data-theme="light"] .nav-link:disabled:hover{color:#7087a9;background:transparent}
+html[data-theme="light"] .nav-soon{border:2px solid var(--pixel-border);background:var(--yellow);color:var(--navy);box-shadow:2px 2px 0 #cbd5e1}
+html[data-theme="light"] .course-card{border:4px solid var(--pixel-border);background:linear-gradient(145deg,#e7edf5,#eff3f8);color:#0f172a;box-shadow:7px 7px 0 var(--shadow),0 0 0 2px #cbd5e1}
+html[data-theme="light"] .course-card:disabled::after{background:repeating-linear-gradient(135deg,transparent 0 12px,rgba(247,249,252,0.12) 12px 24px)}
+html[data-theme="light"] .course-card-icon{border:3px solid var(--pixel-border);background:#d6ebff;color:var(--navy);box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"] .course-card[data-course="java"] .course-card-icon,html[data-theme="light"] .course-card[data-course="cpp"] .course-card-icon,html[data-theme="light"] .course-card[data-course="css"] .course-card-icon{background:var(--yellow);box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"] .course-card[data-course="c"] .course-card-icon,html[data-theme="light"] .course-card[data-course="html"] .course-card-icon{background:var(--purple);color:#171d26;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"] .course-card p{color:#495d79}
+html[data-theme="light"] .course-level{border:2px solid var(--pixel-border)}
+html[data-theme="light"] .course-level{background:#e9eff6;color:#0069d9}
+html[data-theme="light"] .course-card.is-available{border-color:#3b9bff;box-shadow:7px 7px 0 var(--shadow),0 0 0 3px #cbd5e1,0 0 25px rgba(112,175,242,0.144)}
+html[data-theme="light"] .course-card.is-available:hover,html[data-theme="light"] .course-card.is-available:focus-visible{box-shadow:10px 11px 0 var(--shadow),0 0 0 3px #93c5fd,0 0 34px rgba(112,175,242,0.252)}
+html[data-theme="light"] .course-start{border:2px solid var(--pixel-border);background:#d6ebff;color:var(--navy);box-shadow:3px 3px 0 #cbd5e1}
+/* ---- ปรับรายละเอียดให้เหมือนโหมดสว่างของ codedex ---- */
+html[data-theme="light"] .game-header{background:rgba(255,255,255,.97);border-bottom:1px solid #e2e8f0;box-shadow:0 1px 0 #e2e8f0;}
+html[data-theme="light"] .course-card,
+html[data-theme="light"] .course-card.is-available{border:2px solid #cbd5e1;border-radius:8px;background:#ffffff;box-shadow:0 4px 0 #cbd5e1;}
+html[data-theme="light"] .course-card.is-available:hover,
+html[data-theme="light"] .course-card.is-available:focus-visible{border-color:#3b9bff;box-shadow:0 6px 0 #cbd5e1,0 0 0 1px #3b9bff;}
+html[data-theme="light"] .nav-link:hover,html[data-theme="light"] .nav-link.active,
+html[data-theme="light"] .nav-dropdown.open .nav-dropdown-toggle,html[data-theme="light"] .nav-dropdown-toggle.active{
+  background:#f1f5f9;color:#0f172a;box-shadow:inset 0 -3px 0 #3b9bff;}
+/* ---------- หน้าอื่นนอกจากหน้าหลัก: สว่างทั้งหน้า ---------- */
+html[data-theme="light"]:not([data-page="home"]){
+  color-scheme:light;
+  --bg:#ffffff;--panel:#f8fafc;--panel-2:#f1f5f9;--line:#cbd5e1;--text:#0f172a;--muted:#64748b;
+  --kw:#7c3aed;--str:#15803d;--num:#c2410c;--fn:#0369a1;--err:#dc2626;--ok:#15803d;
+  --navy:#0f172a;--navy-2:#f8fafc;--navy-3:#f1f5f9;
+  --purple:#8b5cf6;--purple-dark:#cbd5e1;--mint:#3b9bff;--yellow:#ffd500;--white:#0f172a;
+  --shadow:#cbd5e1;--pixel-border:#cbd5e1;--soft-line:#cbd5e1;
+}
+html[data-theme="light"]:not([data-page="home"]) body{background:radial-gradient(1200px 600px at 15% -10%, rgba(148,163,184,0.08), transparent),
+      radial-gradient(1000px 500px at 100% 10%, rgba(111,184,242,0.06), transparent),
+      var(--bg);color:var(--text);font-family:'Noto Sans Thai','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .mono{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .topbar{border-bottom:1px solid var(--line);background:rgba(244,247,250,0.85)}
+html[data-theme="light"]:not([data-page="home"]) .dot.r{background:#f07a86}
+html[data-theme="light"]:not([data-page="home"]) .dot.y{background:#f5c86b}
+html[data-theme="light"]:not([data-page="home"]) .dot.g{background:#7faad8}
+html[data-theme="light"]:not([data-page="home"]) .topbar .path{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .topbar .path b{color:var(--fn)}
+html[data-theme="light"]:not([data-page="home"]) .caret{background:var(--kw)}
+html[data-theme="light"]:not([data-page="home"]) .eyebrow{font-family:'JetBrains Mono',monospace;color:var(--fn)}
+html[data-theme="light"]:not([data-page="home"]) .eyebrow::before{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) h1 .kw{color:var(--kw)}
+html[data-theme="light"]:not([data-page="home"]) h1 .str{color:var(--str)}
+html[data-theme="light"]:not([data-page="home"]) .hero p{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .btn-lg{box-shadow:0 8px 24px rgba(100,116,139,0.099)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage{background:var(--panel);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .char-pedestal{background:radial-gradient(circle at 50% 40%, rgba(148,163,184,0.16), transparent 70%);border:1px dashed var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .char-pedestal::before{border:2px solid var(--kw)}
+html[data-theme="light"]:not([data-page="home"]) .char-name{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .char-tag{color:var(--str)}
+html[data-theme="light"]:not([data-page="home"]) .char-desc{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage:hover{border-color:var(--kw)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.selected{box-shadow:0 0 0 2px rgba(100,116,139,0.099),0 14px 30px rgba(100,116,139,0.099)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.python-character{border-color:rgba(74,146,222,0.62);background:linear-gradient(145deg,rgba(34,113,197,0.09),rgba(53,139,230,0.04)),var(--panel)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.python-character:hover{border-color:#4a92de;box-shadow:0 12px 30px rgba(34,113,197,0.096)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.python-character.selected{box-shadow:0 0 0 2px rgba(74,146,222,0.15),0 14px 30px rgba(100,116,139,0.099)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.python-character .char-pedestal{background:radial-gradient(circle at 50% 40%,rgba(74,146,222,0.2),transparent 70%)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.python-character .char-pedestal::before{border-color:#4a92de}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.python-character .char-tag{color:#1868bf}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.python-character .btn{background:linear-gradient(135deg,#4a92de,#2271c5);color:#152132}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.java-character{border-color:rgba(255,88,51,0.65);background:linear-gradient(145deg,rgba(255,107,74,0.08),rgba(255,183,77,0.04)),var(--panel)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.java-character:hover{border-color:#ff9733;box-shadow:0 12px 30px rgba(255,107,74,0.096)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.java-character.selected{box-shadow:0 0 0 2px rgba(255,193,77,0.15),0 14px 30px rgba(100,116,139,0.099)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.java-character .char-pedestal{background:radial-gradient(circle at 50% 40%,rgba(255,159,67,0.2),transparent 70%)}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.java-character .char-pedestal::before{border-color:#ff9733}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.java-character .char-tag{color:#d69600}
+html[data-theme="light"]:not([data-page="home"]) .char-stage.java-character .btn{background:linear-gradient(135deg,#ff9f43,#f05a3e);color:#152132}
+html[data-theme="light"]:not([data-page="home"]) .selected-label{background:rgba(127,170,216,0.12);color:var(--ok);font:700 11px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) body.theme-python{background:radial-gradient(1200px 600px at 15% -10%,rgba(34,113,197,0.11),transparent),
+      radial-gradient(1000px 500px at 100% 10%,rgba(53,139,230,0.07),transparent),
+      var(--bg)}
+html[data-theme="light"]:not([data-page="home"]) body.theme-java{background:radial-gradient(1200px 600px at 15% -10%,rgba(255,159,67,0.11),transparent),
+      radial-gradient(1000px 500px at 100% 10%,rgba(240,90,62,0.09),transparent),
+      var(--bg)}
+html[data-theme="light"]:not([data-page="home"]) .diff-card{background:var(--panel);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .diff-card h3{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .diff-card p{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .diff-card .meta{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .diff-badge{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .diff-easy{border-color:var(--ok)}
+html[data-theme="light"]:not([data-page="home"]) .diff-easy:hover{border-color:var(--ok);box-shadow:0 8px 22px rgba(127,170,216,0.09)}
+html[data-theme="light"]:not([data-page="home"]) .diff-easy .diff-badge{background:rgba(127,170,216,0.14);color:var(--ok)}
+html[data-theme="light"]:not([data-page="home"]) .diff-medium{border-color:var(--num)}
+html[data-theme="light"]:not([data-page="home"]) .diff-medium:hover{border-color:var(--num);box-shadow:0 8px 22px rgba(245,167,107,0.09)}
+html[data-theme="light"]:not([data-page="home"]) .diff-medium .diff-badge{background:rgba(245,167,107,0.14);color:var(--num)}
+html[data-theme="light"]:not([data-page="home"]) .diff-hard{border-color:var(--err)}
+html[data-theme="light"]:not([data-page="home"]) .diff-hard:hover{border-color:var(--err);box-shadow:0 8px 22px rgba(240,122,134,0.09)}
+html[data-theme="light"]:not([data-page="home"]) .diff-hard .diff-badge{background:rgba(240,122,134,0.14);color:var(--err)}
+html[data-theme="light"]:not([data-page="home"]) .section-label{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .card{background:var(--panel);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .card:hover{border-color:var(--kw)}
+html[data-theme="light"]:not([data-page="home"]) .file-icon{background:var(--panel-2);font-family:'JetBrains Mono',monospace;color:var(--fn);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .card h3{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .card h3 span{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .card p{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .meta{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .meta b{color:var(--str)}
+html[data-theme="light"]:not([data-page="home"]) .btn{font-family:'JetBrains Mono',monospace;background:var(--kw);color:#152132;border:none}
+html[data-theme="light"]:not([data-page="home"]) .btn:hover{box-shadow:0 6px 20px rgba(100,116,139,0.113)}
+html[data-theme="light"]:not([data-page="home"]) .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .btn.ghost:hover{border-color:var(--fn);box-shadow:none}
+html[data-theme="light"]:not([data-page="home"]) .btn:disabled{box-shadow:none}
+html[data-theme="light"]:not([data-page="home"]) .badge{font-family:'JetBrains Mono',monospace;color:var(--muted);border:1px dashed var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .config{background:var(--panel);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .config h4{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .config .hint{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .chip{font-family:'JetBrains Mono',monospace;border:1px solid var(--line);background:var(--panel-2);color:var(--text)}
+html[data-theme="light"]:not([data-page="home"]) .chip.active{border-color:var(--kw);color:var(--kw);background:rgba(148,163,184,0.08)}
+html[data-theme="light"]:not([data-page="home"]) .chip:hover{border-color:var(--fn)}
+html[data-theme="light"]:not([data-page="home"]) .progress-text{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .progress-text b{color:var(--str)}
+html[data-theme="light"]:not([data-page="home"]) .bar{background:var(--panel-2);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .bar-fill{background:linear-gradient(90deg,var(--kw),var(--fn))}
+html[data-theme="light"]:not([data-page="home"]) .qcard{background:var(--panel);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .qnum{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .qnum b{color:var(--num)}
+html[data-theme="light"]:not([data-page="home"]) .qtext .comment{color:var(--muted);font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .opt{border:1px solid var(--line);background:var(--panel-2)}
+html[data-theme="light"]:not([data-page="home"]) .opt:hover{border-color:var(--fn)}
+html[data-theme="light"]:not([data-page="home"]) .opt.selected{border-color:var(--kw);background:rgba(148,163,184,0.08)}
+html[data-theme="light"]:not([data-page="home"]) .opt.correct{border-color:var(--ok);background:rgba(127,170,216,0.1)}
+html[data-theme="light"]:not([data-page="home"]) .opt.wrong{border-color:var(--err);background:rgba(240,122,134,0.1)}
+html[data-theme="light"]:not([data-page="home"]) .opt .letter{font-family:'JetBrains Mono',monospace;background:var(--panel);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .opt.selected .letter{border-color:var(--kw);color:var(--kw)}
+html[data-theme="light"]:not([data-page="home"]) .opt.correct .letter{border-color:var(--ok);color:var(--ok)}
+html[data-theme="light"]:not([data-page="home"]) .opt.wrong .letter{border-color:var(--err);color:var(--err)}
+html[data-theme="light"]:not([data-page="home"]) .opt .otext{font-family:'JetBrains Mono','Noto Sans Thai',monospace}
+html[data-theme="light"]:not([data-page="home"]) .score-ring{background:conic-gradient(var(--kw) calc(var(--pct)*1%), var(--panel-2) 0)}
+html[data-theme="light"]:not([data-page="home"]) .score-ring::before{background:var(--bg)}
+html[data-theme="light"]:not([data-page="home"]) .score-ring .num{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .score-ring .num small{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .result-line{font-family:'JetBrains Mono',monospace;color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) .result-line b{color:var(--text)}
+html[data-theme="light"]:not([data-page="home"]) .review-item{background:var(--panel);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .review-row{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .review-row.correctrow .tag{color:var(--ok)}
+html[data-theme="light"]:not([data-page="home"]) .review-row.wrongrow .tag{color:var(--err)}
+html[data-theme="light"]:not([data-page="home"]) footer{color:var(--muted);font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) :focus-visible{outline:2px solid var(--fn)}
+html[data-theme="light"]:not([data-page="home"]) .overlay{background:rgba(250,251,253,0.72)}
+html[data-theme="light"]:not([data-page="home"]) .overlay-card{background:var(--panel);border:1px solid var(--line)}
+html[data-theme="light"]:not([data-page="home"]) .overlay-card h4{font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .overlay-card p{color:var(--muted)}
+html[data-theme="light"]:not([data-page="home"]) body,html[data-theme="light"]:not([data-page="home"]) body.theme-python,html[data-theme="light"]:not([data-page="home"]) body.theme-java{color:#0f172a;font-family:'Mulish','Noto Sans Thai','Noto Sans Thai',system-ui,sans-serif;background:radial-gradient(circle at 12% 12%,rgba(148,163,184,0.18),transparent 28rem),
+      radial-gradient(circle at 90% 28%,rgba(112,175,242,0.09),transparent 25rem),
+      #ffffff}
+html[data-theme="light"]:not([data-page="home"]) body::before{background-image:linear-gradient(rgba(15,23,42,0.08) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(15,23,42,0.08) 1px,transparent 1px)}
+html[data-theme="light"]:not([data-page="home"]) button{font:inherit}
+html[data-theme="light"]:not([data-page="home"]) .game-header{background:rgba(244,247,250,0.94);border-bottom:3px solid #cbd5e1;box-shadow:0 5px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .brand{color:#0f172a;background:none;border:0}
+html[data-theme="light"]:not([data-page="home"]) .brand-mark{border:3px solid var(--pixel-border);background:var(--yellow);color:var(--navy);font:800 19px 'JetBrains Mono',monospace;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .brand-copy strong{font:400 12px 'Press Start 2P','JetBrains Mono',monospace;color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .brand-copy small{color:#5a7396}
+html[data-theme="light"]:not([data-page="home"]) .nav-link{border:2px solid transparent;background:transparent;color:#4a5f7c}
+html[data-theme="light"]:not([data-page="home"]) .nav-link:hover,html[data-theme="light"]:not([data-page="home"]) .nav-link.active{color:var(--navy);background:#d6ebff}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown.open .nav-dropdown-toggle,html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-toggle.active{color:var(--navy);background:#d6ebff}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-menu{border:3px solid var(--pixel-border);background:#f0f4f9;box-shadow:6px 8px 0 var(--shadow),0 0 0 3px rgba(100,116,139,0.158)}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-menu::before{border:7px solid transparent;border-bottom-color:var(--pixel-border)}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-head{font:400 8px 'Press Start 2P','JetBrains Mono',monospace;color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-item{border:2px solid transparent;background:transparent;color:#26303f}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-item .item-icon{border:2px solid var(--pixel-border);background:#f1f5f9;font:800 12px 'JetBrains Mono',monospace;color:#0f172a}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-item.available:hover,html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-item.available:focus-visible{background:#f1f5f9;border-color:#3b9bff}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-item.available .item-icon{background:#d6ebff;color:var(--navy)}
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-item .item-soon{font:700 7px 'Press Start 2P','JetBrains Mono',monospace;border:2px solid var(--pixel-border);background:var(--yellow);color:var(--navy)}
+html[data-theme="light"]:not([data-page="home"]) .mini-head h1{text-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .mini-head p{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .mini-chip{border:3px solid var(--pixel-border);background:#eef2f8;color:#354458;box-shadow:3px 3px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .mini-chip:hover{border-color:#3b9bff}
+html[data-theme="light"]:not([data-page="home"]) .mini-chip.selected{border-color:var(--yellow);background:#e7edf5;box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .mini-chip span{font:700 11px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .mini-stage{border:4px solid var(--pixel-border);box-shadow:8px 8px 0 var(--shadow),0 0 0 3px #cbd5e1;background:#f1f4f9}
+html[data-theme="light"]:not([data-page="home"]) .mini-overlay{background:rgba(244,247,250,0.72)}
+html[data-theme="light"]:not([data-page="home"]) .mini-overlay h2{text-shadow:2px 2px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .mini-overlay .mini-score-big{font:800 2.6rem 'JetBrains Mono',monospace;color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .mini-overlay .mini-sub{color:#39495f}
+html[data-theme="light"]:not([data-page="home"]) .mini-overlay .mini-sub b{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .mini-hint{color:#7087a9;font:600 12px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .route-label{color:#7087a9;font:600 11px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .route-label b{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .caret{background:#d6ebff}
+html[data-theme="light"]:not([data-page="home"]) .xp-track{border:2px solid var(--pixel-border);background:#e6ecf4;box-shadow:2px 2px 0 rgba(100,116,139,0.135)}
+html[data-theme="light"]:not([data-page="home"]) .xp-fill{background:repeating-linear-gradient(90deg,#d6ebff 0 12px,#5395dc 12px 16px)}
+html[data-theme="light"]:not([data-page="home"]) .player-hud{border-top:1px solid rgba(68,150,238,0.18);background:#f2f5f9}
+html[data-theme="light"]:not([data-page="home"]) .hero-world{border:4px solid var(--pixel-border);box-shadow:10px 10px 0 #030713,0 0 0 3px var(--purple)}
+html[data-theme="light"]:not([data-page="home"]) .hero-world::after{background:linear-gradient(90deg,rgba(4,8,24,.26),rgba(4,8,24,.58) 35%,rgba(4,8,24,.58) 65%,rgba(4,8,24,.26))}
+html[data-theme="light"]:not([data-page="home"]) .hero-copy{border:3px solid rgba(112,242,189,.8);background:rgba(8,16,39,.86);box-shadow:7px 7px 0 rgba(3,7,19,.88)}
+html[data-theme="light"]:not([data-page="home"]) .pixel-kicker{border:2px solid var(--yellow);background:#e8eef5;color:#a16207;font:400 10px 'Press Start 2P','JetBrains Mono',monospace;box-shadow:3px 3px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .hero-copy h1{text-shadow:3px 3px 0 var(--purple-dark)}
+html[data-theme="light"]:not([data-page="home"]) .hero-copy h1 .accent{color:var(--mint)}
+html[data-theme="light"]:not([data-page="home"]) .hero-copy p{color:#d2d8f0}
+html[data-theme="light"]:not([data-page="home"]) .game-btn,html[data-theme="light"]:not([data-page="home"]) .btn{border:3px solid var(--pixel-border);background:var(--yellow);color:#152132;font-family:'Mulish','Noto Sans Thai',sans-serif;box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .game-btn:hover,html[data-theme="light"]:not([data-page="home"]) .btn:hover{box-shadow:7px 8px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .game-btn:active,html[data-theme="light"]:not([data-page="home"]) .btn:active{box-shadow:2px 2px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .game-btn.secondary,html[data-theme="light"]:not([data-page="home"]) .btn.ghost{background:#f1f5f9;color:#0f172a;border-color:#3b9bff;box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .btn:disabled{box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hero-character .nameplate{border:3px solid var(--pixel-border);background:var(--purple);color:#fff;box-shadow:4px 4px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .hero-mini-stats span{border:2px solid #36446f;background:#101938;color:#bec8ed}
+html[data-theme="light"]:not([data-page="home"]) .page-heading h1{text-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .page-heading p{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .eyebrow{color:#0069d9;font:400 10px 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .eyebrow::before{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .route-zone{border:4px solid var(--pixel-border);background:linear-gradient(145deg,rgba(112,175,242,0.13),rgba(238,242,248,0.97) 48%);box-shadow:8px 8px 0 var(--shadow),0 0 0 3px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .route-zone.java-route{background:linear-gradient(145deg,rgba(255,212,95,0.14),rgba(237,241,247,0.97) 48%);box-shadow:8px 8px 0 var(--shadow),0 0 0 3px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .route-zone::before{color:rgba(18,104,196,0.08);font:800 74px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .route-zone.java-route::before{color:rgba(214,157,0,0.08)}
+html[data-theme="light"]:not([data-page="home"]) .route-avatar{border:3px solid var(--pixel-border);background:#e6ecf4;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .java-route .route-avatar{box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .route-head p{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .stage-trail::before{background:repeating-linear-gradient(180deg,#d6ebff 0 9px,transparent 9px 16px)}
+html[data-theme="light"]:not([data-page="home"]) .java-route .stage-trail::before{background:repeating-linear-gradient(180deg,var(--yellow) 0 9px,transparent 9px 16px)}
+html[data-theme="light"]:not([data-page="home"]) .stage-node{border:3px solid var(--pixel-border);background:#eaeff6;color:#0f172a;box-shadow:5px 5px 0 #cbd5e1,0 0 14px rgba(112,175,242,0.108)}
+html[data-theme="light"]:not([data-page="home"]) .stage-node:hover,html[data-theme="light"]:not([data-page="home"]) .stage-node:focus-visible{border-color:#3b9bff;box-shadow:7px 8px 0 #cbd5e1,0 0 24px rgba(112,175,242,0.33)}
+html[data-theme="light"]:not([data-page="home"]) .java-route .stage-node:hover,html[data-theme="light"]:not([data-page="home"]) .java-route .stage-node:focus-visible{border-color:var(--yellow);box-shadow:7px 8px 0 #cbd5e1,0 0 24px rgba(255,212,95,0.3)}
+html[data-theme="light"]:not([data-page="home"]) .stage-icon{border:3px solid var(--pixel-border);background:#d6ebff;color:var(--navy);font:800 15px 'JetBrains Mono',monospace;box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .java-route .stage-icon{background:var(--yellow);box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .stage-copy strong{font:800 15px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .stage-copy small{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .stage-status{color:#0069d9;font:700 10px 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .java-route .stage-status{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .quest-banner{border:3px solid var(--pixel-border);background:#f8fafc;box-shadow:6px 6px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .quest-banner img{background:#e7edf5;border:2px solid var(--soft-line)}
+html[data-theme="light"]:not([data-page="home"]) .quest-banner p{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .config,html[data-theme="light"]:not([data-page="home"]) .qcard,html[data-theme="light"]:not([data-page="home"]) .review-item,html[data-theme="light"]:not([data-page="home"]) .overlay-card{background:linear-gradient(145deg,#edf1f7,#f0f4f9);border:3px solid var(--pixel-border);box-shadow:7px 7px 0 var(--shadow),0 0 0 2px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .config h4{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .config .hint{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .chip{border:3px solid var(--pixel-border);background:#e7edf5;color:#171d26;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .chip.active,html[data-theme="light"]:not([data-page="home"]) .chip:hover{border-color:#3b9bff;color:#0069d9;background:#ebf0f7}
+html[data-theme="light"]:not([data-page="home"]) .quiz-head{border:3px solid var(--pixel-border);background:#eef2f8;box-shadow:5px 5px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .progress-text{color:#657fa3}
+html[data-theme="light"]:not([data-page="home"]) .progress-text b{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .quiz-head .bar{border:2px solid var(--pixel-border);background:#e2e9f3}
+html[data-theme="light"]:not([data-page="home"]) .quiz-head .bar-fill{background:repeating-linear-gradient(90deg,var(--purple) 0 13px,#d6ebff 13px 17px)}
+html[data-theme="light"]:not([data-page="home"]) .qnum{color:#7087a9}
+html[data-theme="light"]:not([data-page="home"]) .qnum b{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .opt{border:3px solid var(--pixel-border);background:#e9eef6;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .opt:hover{border-color:#3b9bff}
+html[data-theme="light"]:not([data-page="home"]) .opt.selected{border-color:var(--yellow);background:#e4eaf3;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .opt .letter{border:2px solid #cbd5e1;background:#f0f4f9;color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .opt.selected .letter{border-color:var(--yellow);color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .score-ring{border:4px solid var(--pixel-border);box-shadow:7px 7px 0 var(--shadow);background:conic-gradient(#d6ebff calc(var(--pct)*1%),#e4ebf4 0)}
+html[data-theme="light"]:not([data-page="home"]) .score-ring::before{background:#ffffff}
+html[data-theme="light"]:not([data-page="home"]) .score-ring .num{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .reward-banner{border:3px solid var(--pixel-border);background:var(--purple);color:#171d26;font:700 13px 'Press Start 2P','JetBrains Mono',monospace;box-shadow:5px 5px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .section-label{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .review-item{box-shadow:5px 5px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .overlay{background:rgba(250,251,253,0.82)}
+html[data-theme="light"]:not([data-page="home"]) .level-panel,html[data-theme="light"]:not([data-page="home"]) .progress-panel{border:4px solid var(--pixel-border);background:linear-gradient(145deg,#e7edf5,#eff3f8);box-shadow:8px 8px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .level-orb{border:5px solid var(--pixel-border);background:radial-gradient(circle at 35% 30%,#b9a8ff,var(--purple) 45%,var(--purple-dark));box-shadow:7px 7px 0 #cbd5e1,0 0 28px rgba(100,116,139,0.203)}
+html[data-theme="light"]:not([data-page="home"]) .level-orb span{font:400 12px 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .level-orb strong{font:800 44px 'JetBrains Mono',monospace;color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .level-panel p{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .progress-stat{border:3px solid var(--pixel-border);background:#e7edf5;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .progress-stat span{color:#6b84a6}
+html[data-theme="light"]:not([data-page="home"]) .progress-stat strong{color:#a16207;font:800 25px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .progress-stat.correct strong{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .xp-section{border:3px solid var(--pixel-border);background:#f0f4f9}
+html[data-theme="light"]:not([data-page="home"]) .xp-title span:last-child{color:#0069d9;font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .realm-record{border:2px solid #cbd5e1;background:#ebf0f6}
+html[data-theme="light"]:not([data-page="home"]) .realm-record span{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) footer{color:#7087a9;border-top:1px solid rgba(203,213,225,0.18)}
+html[data-theme="light"]:not([data-page="home"]) .footer-credit{color:#7087a9}
+html[data-theme="light"]:not([data-page="home"]) :focus-visible{outline:3px solid var(--yellow)}
+html[data-theme="light"]:not([data-page="home"]) .stage-node.locked{box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .stage-node.locked:hover,html[data-theme="light"]:not([data-page="home"]) .stage-node.locked:focus-visible{border-color:var(--pixel-border);box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .stage-node.completed{border-color:#3b9bff;background:linear-gradient(135deg,#ebeff6,#eaeff6)}
+html[data-theme="light"]:not([data-page="home"]) .java-route .stage-node.completed{border-color:var(--yellow);background:linear-gradient(135deg,#e5ebf4,#eaeff6)}
+html[data-theme="light"]:not([data-page="home"]) .stage-node.completed .stage-icon{background:#d6ebff}
+html[data-theme="light"]:not([data-page="home"]) .stage-node.locked .stage-icon{background:#5f6888;color:#3c4d64;box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .stage-status.completed{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .stage-status.locked{color:#7087a9}
+html[data-theme="light"]:not([data-page="home"]) .daily-card{border:3px solid var(--pixel-border);background:linear-gradient(135deg,#e3eaf3,#eef2f8);box-shadow:6px 6px 0 var(--shadow),0 0 0 2px var(--yellow)}
+html[data-theme="light"]:not([data-page="home"]) .daily-icon{border:3px solid var(--pixel-border);background:var(--yellow);box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .daily-copy span{color:#495d79}
+html[data-theme="light"]:not([data-page="home"]) .daily-reward{color:#a16207;font:700 13px 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .daily-reward small{color:#0069d9;font:600 12px 'Mulish','Noto Sans Thai',sans-serif}
+html[data-theme="light"]:not([data-page="home"]) .status-pill{border:2px solid #cbd5e1;color:#556c8d;font:700 11px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .status-pill.done{border-color:#3b9bff;color:#0069d9;background:rgba(112,175,242,0.08)}
+html[data-theme="light"]:not([data-page="home"]) .status-pill.available{border-color:var(--yellow);color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .status-pill.locked{color:#7087a9}
+html[data-theme="light"]:not([data-page="home"]) .lesson-card,html[data-theme="light"]:not([data-page="home"]) .lab-card,html[data-theme="light"]:not([data-page="home"]) .cheat-card,html[data-theme="light"]:not([data-page="home"]) .project-card,html[data-theme="light"]:not([data-page="home"]) .badge-card{border:3px solid var(--pixel-border);background:linear-gradient(145deg,#e9eef6,#f0f4f9);box-shadow:6px 6px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .lesson-card.completed,html[data-theme="light"]:not([data-page="home"]) .lab-card.completed,html[data-theme="light"]:not([data-page="home"]) .project-card.completed{border-color:#3b9bff;box-shadow:6px 6px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .lesson-number{border:3px solid var(--pixel-border);background:var(--purple);color:white;font:800 16px 'JetBrains Mono',monospace;box-shadow:3px 3px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .lesson-card p,html[data-theme="light"]:not([data-page="home"]) .lab-card p,html[data-theme="light"]:not([data-page="home"]) .project-card p{color:#495d79}
+html[data-theme="light"]:not([data-page="home"]) .code-block{border:3px solid #cbd5e1;background:#f6f8fb;box-shadow:inset 0 0 0 1px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .code-block::before{border-bottom:1px solid #cbd5e1;color:#0069d9;font:700 10px 'Press Start 2P','JetBrains Mono',monospace;background:#eff3f8}
+html[data-theme="light"]:not([data-page="home"]) .code-block pre{color:#1f2834;font:500 13px/1.65 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .lab-type{border:2px solid #cbd5e1;color:#3b4b62;font:700 11px 'JetBrains Mono',monospace;background:rgba(148,163,184,0.1)}
+html[data-theme="light"]:not([data-page="home"]) .lab-type.order{border-color:var(--yellow);color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .lab-type.bug{border-color:#ff335d;color:#d60027}
+html[data-theme="light"]:not([data-page="home"]) .lab-workspace{border:4px solid var(--pixel-border);background:linear-gradient(145deg,#ecf0f7,#f3f6fa);box-shadow:8px 8px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .lab-instruction{color:#495d79}
+html[data-theme="light"]:not([data-page="home"]) .fill-code{border:3px solid #cbd5e1;background:#f6f8fb;color:#1e2632;font:600 14px/1.7 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .code-input,html[data-theme="light"]:not([data-page="home"]) .cheat-search{border:3px solid var(--pixel-border);background:#f7f8ff;color:#7087a9;font:600 15px/1.5 'JetBrains Mono',monospace;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .order-line{border:3px solid var(--pixel-border);background:#e7edf5;box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .order-line code{color:#1a212b;font:600 13px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .order-index{background:var(--purple);font:800 13px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .order-btn{border:2px solid var(--pixel-border);background:var(--yellow);color:#152132}
+html[data-theme="light"]:not([data-page="home"]) .feedback{border:3px solid #cbd5e1;background:#ecf0f7}
+html[data-theme="light"]:not([data-page="home"]) .feedback.success{border-color:#3b9bff;background:#eef2f8;color:#242e3c}
+html[data-theme="light"]:not([data-page="home"]) .feedback.error{border-color:#ff335d;background:#ecf0f7;color:#212a37}
+html[data-theme="light"]:not([data-page="home"]) .feedback.hint{border-color:var(--yellow);background:#ebeff6;color:#344256}
+html[data-theme="light"]:not([data-page="home"]) .quiz-select-card{border:3px solid var(--pixel-border);background:#ebf0f6;box-shadow:6px 6px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .quiz-select-card p{color:#546b8c}
+html[data-theme="light"]:not([data-page="home"]) .cheat-search{box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .cheat-meta{color:#627ca1;font:600 12px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .project-card ul{color:#495d79}
+html[data-theme="light"]:not([data-page="home"]) .check-item{border:2px solid #cbd5e1;background:#eff3f8}
+html[data-theme="light"]:not([data-page="home"]) .check-item input{accent-color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .cat-customizer,html[data-theme="light"]:not([data-page="home"]) .profile-main{border:4px solid var(--pixel-border);background:linear-gradient(145deg,#e8edf5,#eff3f8);box-shadow:8px 8px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .cat-preview{border:3px solid var(--pixel-border);background:radial-gradient(circle,rgba(148,163,184,0.3),transparent 65%),#eff3f8}
+html[data-theme="light"]:not([data-page="home"]) .cat-preview.aura::after{border:4px dashed var(--yellow)}
+html[data-theme="light"]:not([data-page="home"]) .outfit-option{border:3px solid var(--pixel-border);background:#e7edf5;color:#171d26;box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .outfit-option.active{border-color:#3b9bff;color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .profile-stat{border:3px solid var(--pixel-border);background:#e7edf5}
+html[data-theme="light"]:not([data-page="home"]) .profile-stat strong{color:#a16207;font:800 24px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .profile-stat span{color:#587193}
+html[data-theme="light"]:not([data-page="home"]) .badge-card small{color:#5b7497}
+html[data-theme="light"]:not([data-page="home"]) .danger-zone{border:3px solid #cbd5e1;background:#f0f4f9}
+html[data-theme="light"]:not([data-page="home"]) .btn.danger{background:#ff7390;color:#7087a9;box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .empty-state{border:3px dashed #cbd5e1;color:#587193}
+html[data-theme="light"]:not([data-page="home"]) .output-step{border:3px solid var(--pixel-border);background:#e9eef6;color:#171d26;box-shadow:3px 3px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .output-step:hover:not(:disabled),html[data-theme="light"]:not([data-page="home"]) .output-step.active{border-color:var(--yellow);color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .output-step.completed{border-color:#3b9bff;background:#ebeff6;color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .output-support-note{border:2px solid #cbd5e1;background:#eff3f8;color:#485c78}
+html[data-theme="light"]:not([data-page="home"]) .output-support-note strong{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .output-workspace{border:4px solid var(--pixel-border);background:#f3f6fa;box-shadow:8px 8px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .output-workspace.success{box-shadow:8px 8px 0 var(--shadow),0 0 28px rgba(112,175,242,0.27)}
+html[data-theme="light"]:not([data-page="home"]) .editor-panel,html[data-theme="light"]:not([data-page="home"]) .console-card{border:3px solid #cbd5e1;background:#f6f8fb;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .editor-topbar,html[data-theme="light"]:not([data-page="home"]) .console-title{border-bottom:2px solid #cbd5e1;background:#eef2f8;color:#1f2733}
+html[data-theme="light"]:not([data-page="home"]) .editor-topbar small,html[data-theme="light"]:not([data-page="home"]) .console-title small{color:#7087a9;font:600 11px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .editor-body{background:#f6f8fb}
+html[data-theme="light"]:not([data-page="home"]) .line-numbers{border-right:1px solid #cbd5e1;background:#f2f5f9;color:#7087a9;font:500 14px/1.65 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .code-editor{border:0;outline:0;background:#f6f8fb;color:#191f29;caret-color:#a16207;font:500 14px/1.65 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .code-editor:focus{box-shadow:inset 0 0 0 2px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .console-card.target{border-color:#cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .console-card.actual{border-color:#cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .console-title .target-label{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .console-title .actual-label{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .console-screen{color:#171d26;background:repeating-linear-gradient(0deg,rgba(15,23,42,0.018) 0 1px,transparent 1px 24px),#f6f8fb;font:600 14px/1.65 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .console-screen.placeholder{color:#7087a9}
+html[data-theme="light"]:not([data-page="home"]) .output-actions .run-button{background:#d6ebff;color:#7087a9;box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .output-actions .check-button{background:var(--yellow);color:#152132;box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .output-feedback pre{background:#f6f8fb;color:#171d26;font:500 13px/1.6 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .bonus-projects{border:3px solid #cbd5e1;background:#eef2f8}
+html[data-theme="light"]:not([data-page="home"]) .bonus-projects p{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .nav-link:disabled{color:#7087a9}
+html[data-theme="light"]:not([data-page="home"]) .nav-link:disabled:hover{color:#7087a9;background:transparent}
+html[data-theme="light"]:not([data-page="home"]) .nav-soon{border:2px solid var(--pixel-border);background:var(--yellow);color:var(--navy);font:700 7px 'Press Start 2P','JetBrains Mono',monospace;box-shadow:2px 2px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .home-hero{border:0;box-shadow:none;background:var(--navy)}
+html[data-theme="light"]:not([data-page="home"]) .home-hero::after{background:linear-gradient(180deg,rgba(16,24,78,.56) 0%,rgba(16,24,78,.52) 72%,var(--navy) 100%),
+      radial-gradient(ellipse at center,rgba(8,14,44,.34) 0%,rgba(8,14,44,0) 62%)}
+html[data-theme="light"]:not([data-page="home"]) .home-hero .hero-copy{border:0;background:none;box-shadow:none}
+html[data-theme="light"]:not([data-page="home"]) .home-hero .pixel-kicker{border:0;background:none;box-shadow:none;color:var(--yellow);text-shadow:3px 3px 0 rgba(3,7,19,.75)}
+html[data-theme="light"]:not([data-page="home"]) .home-hero .hero-title{color:#fff;text-shadow:5px 5px 0 #1b1442,0 0 28px rgba(0,0,0,.35)}
+html[data-theme="light"]:not([data-page="home"]) .home-hero .hero-copy p{color:#eef1ff;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+html[data-theme="light"]:not([data-page="home"]) .fx-star{background:#ffffff;box-shadow:3px 0 #cbd5e1,-3px 0 #cbd5e1,0 3px #cbd5e1,0 -3px #cbd5e1,0 0 8px 2px rgba(100,116,139,0.27)}
+html[data-theme="light"]:not([data-page="home"]) .fx-firefly{background:#fff3a8;box-shadow:0 0 8px 3px rgba(255,214,102,0.45),0 0 18px 6px rgba(255,190,80,0.15)}
+html[data-theme="light"]:not([data-page="home"]) .fx-cloud{background:radial-gradient(ellipse 30% 60% at 30% 60%,#e4e9ff 0 55%,transparent 72%),
+      radial-gradient(ellipse 26% 70% at 52% 45%,#e4e9ff 0 55%,transparent 72%),
+      radial-gradient(ellipse 28% 55% at 72% 62%,#e4e9ff 0 55%,transparent 72%)}
+html[data-theme="light"]:not([data-page="home"]) .fx-mist{background:radial-gradient(ellipse 18% 55% at 12% 70%,rgba(15,23,42,0.22),transparent 70%),
+      radial-gradient(ellipse 22% 50% at 38% 80%,rgba(170,190,255,0.18),transparent 70%),
+      radial-gradient(ellipse 16% 45% at 62% 72%,rgba(15,23,42,0.2),transparent 70%),
+      radial-gradient(ellipse 20% 55% at 88% 78%,rgba(170,190,255,0.18),transparent 70%)}
+html[data-theme="light"]:not([data-page="home"]) .journeys-heading h2{text-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .journeys-heading p{color:#495d79}
+html[data-theme="light"]:not([data-page="home"]) .journey-category-head::after{background:linear-gradient(90deg,var(--purple),transparent)}
+html[data-theme="light"]:not([data-page="home"]) .journey-category-head h3{color:#0069d9;font:700 clamp(.95rem,2vw,1.15rem) 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .course-card{border:4px solid var(--pixel-border);background:linear-gradient(145deg,#e7edf5,#eff3f8);color:#0f172a;box-shadow:7px 7px 0 var(--shadow),0 0 0 2px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .course-card:disabled::after{background:repeating-linear-gradient(135deg,transparent 0 12px,rgba(247,249,252,0.12) 12px 24px)}
+html[data-theme="light"]:not([data-page="home"]) .course-card-icon{border:3px solid var(--pixel-border);background:#d6ebff;color:var(--navy);font:800 18px 'JetBrains Mono',monospace;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .course-card[data-course="java"] .course-card-icon,html[data-theme="light"]:not([data-page="home"]) .course-card[data-course="cpp"] .course-card-icon,html[data-theme="light"]:not([data-page="home"]) .course-card[data-course="css"] .course-card-icon{background:var(--yellow);box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .course-card[data-course="c"] .course-card-icon,html[data-theme="light"]:not([data-page="home"]) .course-card[data-course="html"] .course-card-icon{background:var(--purple);color:#171d26;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .course-card p{color:#495d79}
+html[data-theme="light"]:not([data-page="home"]) .course-level,html[data-theme="light"]:not([data-page="home"]) .course-soon{border:2px solid var(--pixel-border);font:700 9px 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .course-level{background:#e9eff6;color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .course-soon{background:var(--yellow);color:var(--navy);box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .course-card.is-available{border-color:#3b9bff;box-shadow:7px 7px 0 var(--shadow),0 0 0 3px #cbd5e1,0 0 25px rgba(112,175,242,0.144)}
+html[data-theme="light"]:not([data-page="home"]) .course-card.is-available:hover,html[data-theme="light"]:not([data-page="home"]) .course-card.is-available:focus-visible{box-shadow:10px 11px 0 var(--shadow),0 0 0 3px #93c5fd,0 0 34px rgba(112,175,242,0.252)}
+html[data-theme="light"]:not([data-page="home"]) .course-start{border:2px solid var(--pixel-border);background:#d6ebff;color:var(--navy);font:700 9px 'Press Start 2P','JetBrains Mono',monospace;box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-path-hero{border:4px solid var(--pixel-border);background:linear-gradient(135deg,rgba(112,175,242,0.16),rgba(238,242,248,0.96) 46%),
+      #f8fafc;box-shadow:9px 9px 0 var(--shadow),0 0 0 3px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-path-copy h1{color:#0f172a;text-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-path-copy > p{color:#40526b}
+html[data-theme="light"]:not([data-page="home"]) .python-course-progress{border:3px solid var(--pixel-border);background:rgba(244,247,250,0.84);box-shadow:5px 5px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .python-progress-label{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .python-progress-label strong{color:#a16207;font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .python-progress-track{border:3px solid var(--pixel-border);background:#e6ecf4;box-shadow:3px 3px 0 rgba(100,116,139,0.144)}
+html[data-theme="light"]:not([data-page="home"]) .python-progress-fill{background:repeating-linear-gradient(90deg,#d6ebff 0 14px,#5395dc 14px 19px)}
+html[data-theme="light"]:not([data-page="home"]) .python-path-heading p{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-list::before{border:2px solid var(--pixel-border);background:repeating-linear-gradient(180deg,var(--purple) 0 12px,#4a3b96 12px 20px);box-shadow:2px 0 0 rgba(100,116,139,0.158)}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-node{border:4px solid var(--pixel-border);background:var(--purple);color:#171d26;font:800 18px 'JetBrains Mono',monospace;box-shadow:4px 4px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card{border:4px solid var(--pixel-border);background:linear-gradient(145deg,#e8edf5,#eff3f8);color:#0f172a;box-shadow:7px 7px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-copy small{color:#0069d9;font:700 10px 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-copy p{color:#495d79}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-status{border:2px solid var(--pixel-border);font:700 9px 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-meta span{border:2px solid #cbd5e1;background:#f0f4f9;color:#556c8d;font:700 11px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.available{border-color:#3b9bff;box-shadow:7px 7px 0 var(--shadow),0 0 0 3px #cbd5e1,0 0 26px rgba(112,175,242,0.162)}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.available:hover,html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.available:focus-visible{box-shadow:9px 10px 0 var(--shadow),0 0 0 3px #93c5fd,0 0 34px rgba(112,175,242,0.288)}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-row.available .python-chapter-node{background:#d6ebff;color:var(--navy);box-shadow:4px 4px 0 #cbd5e1,0 0 24px rgba(112,175,242,0.288)}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.available .python-chapter-status{background:#d6ebff;color:var(--navy);box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.locked{box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.locked:hover,html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.locked:focus-visible{border-color:var(--pixel-border);box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-row.locked .python-chapter-node{background:#5f6888;color:#344357;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.locked .python-chapter-status{background:#dee6f1;color:#3b4c63}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.completed{border-color:var(--yellow);background:linear-gradient(145deg,#e8edf5,#edf1f7);box-shadow:7px 7px 0 var(--shadow),0 0 0 3px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-row.completed .python-chapter-node{background:var(--yellow);color:var(--navy);box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-chapter-card.completed .python-chapter-status{background:var(--yellow);color:var(--navy);box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-lesson-preview-card{border:4px solid var(--pixel-border);background:radial-gradient(circle at 50% 0,rgba(112,175,242,0.16),transparent 55%),
+      linear-gradient(145deg,#e8edf5,#f0f4f9);box-shadow:9px 9px 0 var(--shadow),0 0 0 3px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-preview-icon{border:4px solid var(--pixel-border);background:#d6ebff;color:var(--navy);font:800 24px 'JetBrains Mono',monospace;box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-lesson-preview-card h1{text-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .python-lesson-preview-card p{color:#40526b}
+html[data-theme="light"]:not([data-page="home"]) .intro-kicker{border:2px solid var(--yellow);background:#e8eef5;color:#a16207;font:400 9px 'Press Start 2P','JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .intro-lead{border-left:4px solid #3b9bff;background:rgba(112,175,242,0.08);color:#222b38}
+html[data-theme="light"]:not([data-page="home"]) .intro-card{border:3px solid var(--pixel-border);background:#eef2f8;box-shadow:5px 5px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .intro-card h3{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .intro-card p{color:#39495f}
+html[data-theme="light"]:not([data-page="home"]) .intro-code{border:3px solid var(--pixel-border);background:#f2f5f9;box-shadow:5px 5px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .intro-code h3{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .intro-code pre{border:2px solid #cbd5e1;background:#f6f8fb;color:#1f2834;font:600 13.5px/1.7 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .intro-code ol{color:#39495f}
+html[data-theme="light"]:not([data-page="home"]) .intro-code ol li::marker{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .intro-dot{border:2px solid var(--pixel-border);background:#e1e8f2}
+html[data-theme="light"]:not([data-page="home"]) .intro-dot.current{background:var(--yellow)}
+html[data-theme="light"]:not([data-page="home"]) .intro-dot.done{background:#d6ebff}
+html[data-theme="light"]:not([data-page="home"]) .hello-lesson-header{border:4px solid var(--pixel-border);background:linear-gradient(135deg,#e8edf5,#eff3f8);box-shadow:8px 8px 0 var(--shadow),0 0 0 2px #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hello-lesson-title{text-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hello-lesson-subtitle{color:#495d79}
+html[data-theme="light"]:not([data-page="home"]) .hello-progress-label{color:#556c8d}
+html[data-theme="light"]:not([data-page="home"]) .hello-progress-label strong{color:#a16207;font-family:'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .hello-progress-track{border:3px solid var(--pixel-border);background:#e4ebf4;box-shadow:3px 3px 0 rgba(100,116,139,0.144)}
+html[data-theme="light"]:not([data-page="home"]) .hello-progress-fill{background:repeating-linear-gradient(90deg,#d6ebff 0 14px,var(--yellow) 14px 18px)}
+html[data-theme="light"]:not([data-page="home"]) .hello-exercise-dot{border:3px solid var(--pixel-border);background:#e9eef6;color:#556c8d;box-shadow:3px 3px 0 var(--shadow);font:800 12px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .hello-exercise-dot:hover,html[data-theme="light"]:not([data-page="home"]) .hello-exercise-dot:focus-visible{border-color:#cbd5e1;color:#171d26}
+html[data-theme="light"]:not([data-page="home"]) .hello-exercise-dot.current{border-color:var(--yellow);background:#ebeff6;color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .hello-exercise-dot.completed{border-color:#3b9bff;background:#eef2f8;color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .hello-lesson-guide,html[data-theme="light"]:not([data-page="home"]) .hello-code-side{border:4px solid var(--pixel-border);background:linear-gradient(145deg,#e9eef6,#f0f4f9);box-shadow:8px 8px 0 var(--shadow)}
+html[data-theme="light"]:not([data-page="home"]) .hello-exercise-kicker{border:2px solid var(--pixel-border);background:var(--purple);color:#171d26;font:700 9px 'Press Start 2P','JetBrains Mono',monospace;box-shadow:3px 3px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hello-lesson-guide > p{color:#40526b}
+html[data-theme="light"]:not([data-page="home"]) .hello-info-section h3{color:#0069d9}
+html[data-theme="light"]:not([data-page="home"]) .hello-example{border:3px solid #cbd5e1;background:#f6f8fb;color:#191f29;box-shadow:inset 0 0 0 1px #cbd5e1;font:600 13px/1.7 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .hello-key-list{color:#40526b}
+html[data-theme="light"]:not([data-page="home"]) .hello-key-list li::marker{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .hello-mission{border:3px solid var(--yellow);background:#ebeff6;color:#344256;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hello-mission strong{color:#a16207}
+html[data-theme="light"]:not([data-page="home"]) .hello-code-side{background:#f3f6fa}
+html[data-theme="light"]:not([data-page="home"]) .hello-editor-panel,html[data-theme="light"]:not([data-page="home"]) .hello-console-card{border:3px solid #cbd5e1;background:#f6f8fb;box-shadow:4px 4px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hello-editor-panel{border-color:#cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hello-console-card{border-color:#cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .web-preview-frame{border:0;background:#ffffff}
+html[data-theme="light"]:not([data-page="home"]) .hello-editor-topbar,html[data-theme="light"]:not([data-page="home"]) .hello-console-title{border-bottom:2px solid #cbd5e1;background:#eef2f8;color:#1f2733}
+html[data-theme="light"]:not([data-page="home"]) .hello-editor-topbar small,html[data-theme="light"]:not([data-page="home"]) .hello-console-title small{color:#7087a9;font:600 11px 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .hello-editor-body{background:#f6f8fb}
+html[data-theme="light"]:not([data-page="home"]) .hello-console-screen{background:repeating-linear-gradient(0deg,rgba(15,23,42,0.018) 0 1px,transparent 1px 24px),#f6f8fb;color:#171d26;font:600 14px/1.65 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) .hello-console-screen.placeholder{color:#7087a9}
+html[data-theme="light"]:not([data-page="home"]) .hello-primary-actions .run-button{background:#d6ebff;color:#7087a9;box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hello-primary-actions .check-button{background:var(--yellow);color:#152132;box-shadow:5px 5px 0 #cbd5e1}
+html[data-theme="light"]:not([data-page="home"]) .hello-feedback pre{background:#f6f8fb;color:#171d26;font:500 13px/1.6 'JetBrains Mono',monospace}
+html[data-theme="light"]:not([data-page="home"]) body{background:#ffffff;}
+html[data-theme="light"]:not([data-page="home"]) body::before{display:none;}
+/* หน้า Quiz ใส่คลาสธีมของภาษาไว้ที่ body ซึ่งตั้งสีอ่อน/เหลืองไว้ จึงตั้งสีที่อ่านง่ายบนพื้นขาวทับอีกชั้น (คำว่า ✓ ถูก เป็นสีเขียว) */
+html[data-theme="light"]:not([data-page="home"]) body.theme-python,html[data-theme="light"]:not([data-page="home"]) body.theme-java{--ok:#15803d;--err:#dc2626;--kw:#7c3aed;--str:#15803d;--num:#c2410c;--fn:#0369a1;}
+html[data-theme="light"]:not([data-page="home"]) .target-output{border-color:#f5d77a;background:#fffbeb;}
+html[data-theme="light"]:not([data-page="home"]) .target-output-head{border-bottom-color:#f5e4a8;color:#a16207;}
+html[data-theme="light"]:not([data-page="home"]) .target-output-head small{color:#8a6d1f;}
+html[data-theme="light"]:not([data-page="home"]) .target-output pre{color:#0f172a;}
+html[data-theme="light"]:not([data-page="home"]) .ws{color:#c9a227;}
+html[data-theme="light"]:not([data-page="home"]) .ws-empty{color:#94a3b8;}
+html[data-theme="light"]:not([data-page="home"]) .output-diff{border-top-color:#cbd5e1;}
+html[data-theme="light"]:not([data-page="home"]) .output-diff-row code{background:#f1f5f9;color:#0f172a;}
+html[data-theme="light"]:not([data-page="home"]) .diff-mark .ws{color:#081027;}
+
+/* ---- ปรับรายละเอียดให้เหมือนโหมดสว่างของ codedex ---- */
+html[data-theme="light"]:not([data-page="home"]) .game-header{background:rgba(255,255,255,.97);border-bottom:1px solid #e2e8f0;box-shadow:0 1px 0 #e2e8f0;}
+html[data-theme="light"]:not([data-page="home"]) .course-card,
+html[data-theme="light"]:not([data-page="home"]) .course-card.is-available{border:2px solid #cbd5e1;border-radius:8px;background:#ffffff;box-shadow:0 4px 0 #cbd5e1;}
+html[data-theme="light"]:not([data-page="home"]) .course-card.is-available:hover,
+html[data-theme="light"]:not([data-page="home"]) .course-card.is-available:focus-visible{border-color:#3b9bff;box-shadow:0 6px 0 #cbd5e1,0 0 0 1px #3b9bff;}
+html[data-theme="light"]:not([data-page="home"]) .nav-link:hover,html[data-theme="light"]:not([data-page="home"]) .nav-link.active,
+html[data-theme="light"]:not([data-page="home"]) .nav-dropdown.open .nav-dropdown-toggle,html[data-theme="light"]:not([data-page="home"]) .nav-dropdown-toggle.active{
+  background:#f1f5f9;color:#0f172a;box-shadow:inset 0 -3px 0 #3b9bff;}
+</style>
+<script>
+/* ตั้งโหมดก่อนหน้าเว็บแสดงผลเพื่อไม่ให้สีกระพริบ และโหลดฟอนต์ของโหมดสว่างเฉพาะตอนใช้ */
+const LIGHT_FONTS_URL = "https://fonts.googleapis.com/css2?family=Mulish:wght@400;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap";
+function loadLightFonts(){
+  if(document.getElementById("lightFonts")) return;
+  const link = document.createElement("link");
+  link.id = "lightFonts"; link.rel = "stylesheet"; link.href = LIGHT_FONTS_URL;
+  document.head.appendChild(link);
+}
+try{ if(localStorage.getItem("dhCoding.theme") === "light"){ document.documentElement.dataset.theme = "light"; loadLightFonts(); } }catch(e){}
+</script>
+<!-- THEME:END -->
 </head>
 <body>
 
@@ -2022,7 +2585,10 @@
       </div>
       <button class="nav-link" type="button" data-nav="minigame" onclick="goMinigame()">Minigame</button>
     </div>
-    <div class="route-label" id="pathLabel"><b>world</b> / home<span class="caret"></span></div>
+    <div class="nav-tools">
+      <div class="route-label" id="pathLabel"><b>world</b> / home<span class="caret"></span></div>
+      <button class="theme-toggle" id="themeToggle" type="button" onclick="toggleTheme()" aria-pressed="false" aria-label="เปลี่ยนเป็นโหมดสว่าง" title="เปลี่ยนเป็นโหมดสว่าง">🌙</button>
+    </div>
   </nav>
   <div class="player-hud" aria-hidden="true"></div>
 </header>
@@ -2281,6 +2847,37 @@ const QUIZ_BANKS = { python: QUIZZES, java: JAVA_QUIZZES };
 const LETTERS = ["A","B","C","D"];
 const app = document.getElementById("app");
 const pathLabel = document.getElementById("pathLabel");
+
+/* ---------- สลับโหมดสว่าง / มืด ---------- */
+const THEME_STORAGE_KEY = "dhCoding.theme";
+function applyTheme(theme){
+  const light = theme === "light";
+  if(light){ document.documentElement.dataset.theme = "light"; loadLightFonts(); }
+  else delete document.documentElement.dataset.theme;
+  const button = document.getElementById("themeToggle");
+  if(button){
+    const label = light ? "เปลี่ยนเป็นโหมดมืด" : "เปลี่ยนเป็นโหมดสว่าง";
+    button.textContent = light ? "☀️" : "🌙";
+    button.setAttribute("aria-pressed",String(light));
+    button.setAttribute("aria-label",label);
+    button.title = label;
+  }
+}
+function toggleTheme(){
+  const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+  applyTheme(next);
+  try{ localStorage.setItem(THEME_STORAGE_KEY,next); }
+  catch(error){ /* สลับโหมดได้แม้เบราว์เซอร์ปิดกั้น localStorage */ }
+}
+applyTheme(document.documentElement.dataset.theme);
+/* บอก CSS ว่าตอนนี้อยู่หน้าหลักหรือไม่ (หน้าหลักในโหมดสว่างจะเปลี่ยนแค่แถบเมนูกับการ์ดคอร์ส) */
+function updatePageMarker(){
+  const app = document.getElementById("app");
+  const isHome = !!(app && app.querySelector(".home-hero, .course-grid"));
+  document.documentElement.dataset.page = isHome ? "home" : "other";
+}
+new MutationObserver(updatePageMarker).observe(document.getElementById("app"),{childList:true});
+updatePageMarker();
 const floatingMascot = document.querySelector(".mascot");
 const CHARACTERS = {
   python: {
@@ -3713,7 +4310,7 @@ const JAVA_COURSE = [
 ];
 
 const JAVA_HELLO_EXERCISES = [
-  {scaffold:true,id:"first-print",title:"First Print",
+  {id:"first-print",title:"First Print",
     description:"โปรแกรม Java เริ่มทำงานที่เมธอด main คำสั่ง System.out.println() ใช้พิมพ์ข้อความออกหน้าจอแล้วขึ้นบรรทัดใหม่",
     example:jMain('System.out.println("Ready!");'),
     keyPoints:["ทุกคำสั่งใน Java จบด้วยเครื่องหมาย ;","ข้อความอยู่ในเครื่องหมายคำพูดคู่ \" \"","println พิมพ์แล้วขึ้นบรรทัดใหม่ให้อัตโนมัติ"],
@@ -3721,7 +4318,7 @@ const JAVA_HELLO_EXERCISES = [
     starter:jMain('System.out.println("");'),target:"Hello, world!",requiresComment:false,
     hints:['ใส่ข้อความ Hello, world! ไว้ในเครื่องหมายคำพูดใน println','อย่าลืมเครื่องหมาย ; ปิดท้าย'],
     solution:jMain('System.out.println("Hello, world!");')},
-  {scaffold:true,id:"code-cats",title:"Code Cats",
+  {id:"code-cats",title:"Code Cats",
     description:"ข้อความในเครื่องหมายคำพูดเรียกว่า String โดย Java จะพิมพ์ตัวอักษรและช่องว่างตามที่เขียนทุกตัว",
     example:jMain('System.out.println("Code Cats");'),
     keyPoints:["String ใช้เครื่องหมายคำพูดคู่เท่านั้น","ตัวพิมพ์ใหญ่และเล็กถือว่าต่างกัน","ช่องว่างในข้อความเป็นส่วนหนึ่งของ String"],
@@ -3729,7 +4326,7 @@ const JAVA_HELLO_EXERCISES = [
     starter:jMain('System.out.println("");'),target:"Code Cats Adventure",requiresComment:false,
     hints:['พิมพ์ Code Cats Adventure ในเครื่องหมายคำพูด',"ตรวจช่องว่างและตัวพิมพ์ใหญ่ให้ตรง"],
     solution:jMain('System.out.println("Code Cats Adventure");')},
-  {scaffold:true,id:"two-lines",title:"Two Lines",
+  {id:"two-lines",title:"Two Lines",
     description:"เรียก println หลายครั้งเพื่อพิมพ์หลายบรรทัด แต่ละคำสั่งสร้างหนึ่งบรรทัดตามลำดับ",
     example:jMain('System.out.println("Moon");\nSystem.out.println("Map");'),
     keyPoints:["หนึ่ง println ต่อหนึ่งบรรทัด","ลำดับคำสั่งคือลำดับของผลลัพธ์","ทุกคำสั่งต้องจบด้วย ;"],
@@ -3737,7 +4334,7 @@ const JAVA_HELLO_EXERCISES = [
     starter:jMain('System.out.println("");\nSystem.out.println("");'),target:"Java\nAdventure",requiresComment:false,
     hints:["ใช้ println สองครั้ง","บรรทัดแรก Java บรรทัดที่สอง Adventure"],
     solution:jMain('System.out.println("Java");\nSystem.out.println("Adventure");')},
-  {scaffold:true,id:"comments",title:"Comments",
+  {id:"comments",title:"Comments",
     description:"คอมเมนต์ขึ้นต้นด้วย // Java จะข้ามบรรทัดนั้นและไม่พิมพ์ออกมา ใช้บันทึกอธิบายโค้ด",
     example:jMain('// note for the cat\nSystem.out.println("Path saved");'),
     keyPoints:["คอมเมนต์บรรทัดเดียวขึ้นต้นด้วย //","คอมเมนต์ช่วยอธิบายโค้ดให้คนอ่าน","ข้อความในคอมเมนต์ไม่กลายเป็นผลลัพธ์"],
@@ -3745,7 +4342,7 @@ const JAVA_HELLO_EXERCISES = [
     starter:jMain('System.out.println("");'),target:"Keep coding!",requiresComment:true,
     hints:["เพิ่มบรรทัดที่ขึ้นต้นด้วย // เหนือหรือใต้ println","ใส่ Keep coding! ใน println"],
     solution:jMain('// ส่งกำลังใจให้นักผจญภัย\nSystem.out.println("Keep coding!");')},
-  {scaffold:true,id:"checkpoint",title:"Chapter Checkpoint",
+  {id:"checkpoint",title:"Chapter Checkpoint",
     description:"รวมพลังบทนี้: พิมพ์ข้อความต้อนรับสองบรรทัดให้ตรงตามโจทย์",
     example:jMain('System.out.println("Quest started");\nSystem.out.println("Let us code");'),
     keyPoints:["ตรวจตัวพิมพ์และเครื่องหมายวรรคตอนให้ตรง","ใช้ println หนึ่งครั้งต่อหนึ่งบรรทัด","กด Run เพื่อดูผลก่อนตรวจคำตอบ"],
@@ -3756,7 +4353,7 @@ const JAVA_HELLO_EXERCISES = [
 ];
 
 const JAVA_VARIABLES_EXERCISES = [
-  {scaffold:true,id:"string-var",title:"String Variable",
+  {id:"string-var",title:"String Variable",
     description:"Java เป็นภาษาแบบมีชนิด ต้องระบุชนิดก่อนชื่อตัวแปร ข้อความใช้ชนิด String",
     example:jMain('String hero = "Milo";\nSystem.out.println(hero);'),
     keyPoints:["ประกาศตัวแปร: ชนิด ชื่อ = ค่า;","String ใช้เก็บข้อความ","เรียกใช้ด้วยการพิมพ์ชื่อตัวแปร"],
@@ -3764,7 +4361,7 @@ const JAVA_VARIABLES_EXERCISES = [
     starter:jMain('String name = "";\nSystem.out.println(name);'),target:"Mochi",requiresComment:false,
     hints:['ใส่ Mochi ในเครื่องหมายคำพูดทางขวาของ =',"println(name) จะพิมพ์ค่าที่เก็บไว้"],
     solution:jMain('String name = "Mochi";\nSystem.out.println(name);')},
-  {scaffold:true,id:"int-var",title:"int Variable",
+  {id:"int-var",title:"int Variable",
     description:"จำนวนเต็มใช้ชนิด int เขียนตัวเลขได้เลยโดยไม่ต้องมีเครื่องหมายคำพูด",
     example:jMain('int score = 100;\nSystem.out.println(score);'),
     keyPoints:["int เก็บจำนวนเต็ม","ตัวเลขไม่ต้องมีเครื่องหมายคำพูด","println พิมพ์ค่าตัวเลขได้"],
@@ -3772,7 +4369,7 @@ const JAVA_VARIABLES_EXERCISES = [
     starter:jMain('int age = 0;\nSystem.out.println(age);'),target:"7",requiresComment:false,
     hints:["เปลี่ยน 0 เป็น 7","println(age)"],
     solution:jMain('int age = 7;\nSystem.out.println(age);')},
-  {scaffold:true,id:"double-var",title:"double Variable",
+  {id:"double-var",title:"double Variable",
     description:"เลขทศนิยมใช้ชนิด double เช่น 2.5 หรือ 3.14",
     example:jMain('double pi = 3.14;\nSystem.out.println(pi);'),
     keyPoints:["double เก็บเลขทศนิยม","เขียนจุดทศนิยม เช่น 2.5","Java พิมพ์ 5.0 สำหรับ double ที่ลงตัว"],
@@ -3780,7 +4377,7 @@ const JAVA_VARIABLES_EXERCISES = [
     starter:jMain('double price = 0.0;\nSystem.out.println(price);'),target:"2.5",requiresComment:false,
     hints:["เปลี่ยนค่าเป็น 2.5","println(price)"],
     solution:jMain('double price = 2.5;\nSystem.out.println(price);')},
-  {scaffold:true,id:"boolean-var",title:"boolean Variable",
+  {id:"boolean-var",title:"boolean Variable",
     description:"ค่าความจริงใช้ชนิด boolean มีสองค่าคือ true และ false (ตัวพิมพ์เล็ก)",
     example:jMain('boolean open = true;\nSystem.out.println(open);'),
     keyPoints:["boolean มีค่า true หรือ false","เขียนด้วยตัวพิมพ์เล็ก","ไม่ต้องมีเครื่องหมายคำพูด"],
@@ -3788,7 +4385,7 @@ const JAVA_VARIABLES_EXERCISES = [
     starter:jMain('boolean isReady = false;\nSystem.out.println(isReady);'),target:"true",requiresComment:false,
     hints:["เปลี่ยน false เป็น true","true เขียนด้วยตัวพิมพ์เล็กทั้งหมด"],
     solution:jMain('boolean isReady = true;\nSystem.out.println(isReady);')},
-  {scaffold:true,id:"concat",title:"Chapter Checkpoint",
+  {id:"concat",title:"Chapter Checkpoint",
     description:"เชื่อมข้อความกับค่าอื่นด้วยเครื่องหมาย + ใน Java ตัวเลขจะถูกแปลงเป็นข้อความให้อัตโนมัติเมื่อเชื่อมกับ String",
     example:jMain('String name = "Milo";\nSystem.out.println("Hi " + name);'),
     keyPoints:["ใช้ + เชื่อมข้อความ","String + ตัวเลข ได้ข้อความ","ระวังช่องว่างในเครื่องหมายคำพูด"],
@@ -3799,7 +4396,7 @@ const JAVA_VARIABLES_EXERCISES = [
 ];
 
 const JAVA_CONDITIONS_EXERCISES = [
-  {scaffold:true,id:"first-if",title:"First if",
+  {id:"first-if",title:"First if",
     description:"คำสั่ง if ตรวจเงื่อนไขในวงเล็บ ถ้าเป็น true จะทำคำสั่งในปีกกา { }",
     example:jMain('int age = 20;\nif (age >= 18) {\n    System.out.println("adult");\n}'),
     keyPoints:["เงื่อนไขอยู่ในวงเล็บ ( )","บล็อกคำสั่งอยู่ในปีกกา { }","ทำเมื่อเงื่อนไขเป็น true"],
@@ -3807,7 +4404,7 @@ const JAVA_CONDITIONS_EXERCISES = [
     starter:jMain('int age = 20;\nif (age >= 18) {\n    System.out.println("");\n}'),target:"adult",requiresComment:false,
     hints:["เงื่อนไขคือ age >= 18","ใส่ adult ใน println ภายในปีกกา"],
     solution:jMain('int age = 20;\nif (age >= 18) {\n    System.out.println("adult");\n}')},
-  {scaffold:true,id:"if-else",title:"if / else",
+  {id:"if-else",title:"if / else",
     description:"else ทำงานเมื่อเงื่อนไขของ if เป็น false ทำให้มีทางเลือกสองทาง",
     example:jMain('int score = 80;\nif (score >= 50) {\n    System.out.println("pass");\n} else {\n    System.out.println("fail");\n}'),
     keyPoints:["else ไม่มีเงื่อนไข","ทำงานเมื่อ if เป็น false","ทั้งสองบล็อกใช้ปีกกา { }"],
@@ -3815,7 +4412,7 @@ const JAVA_CONDITIONS_EXERCISES = [
     starter:jMain('int score = 45;\nif (score >= 50) {\n    System.out.println("pass");\n} else {\n    System.out.println("");\n}'),target:"fail",requiresComment:false,
     hints:["score = 45 น้อยกว่า 50 จึงเข้า else","ใส่ fail ใน println ของ else"],
     solution:jMain('int score = 45;\nif (score >= 50) {\n    System.out.println("pass");\n} else {\n    System.out.println("fail");\n}')},
-  {scaffold:true,id:"else-if",title:"else if",
+  {id:"else-if",title:"else if",
     description:"else if ตรวจเงื่อนไขเพิ่มทีละขั้นเมื่อเงื่อนไขก่อนหน้าเป็น false",
     example:jMain('int x = 90;\nif (x >= 80) {\n    System.out.println("A");\n} else if (x >= 70) {\n    System.out.println("B");\n} else {\n    System.out.println("C");\n}'),
     keyPoints:["เรียงเงื่อนไขจากมากไปน้อย","หยุดที่เงื่อนไขแรกที่เป็น true","ปิดท้ายด้วย else"],
@@ -3823,7 +4420,7 @@ const JAVA_CONDITIONS_EXERCISES = [
     starter:jMain('int x = 75;\nif (x >= 80) {\n    System.out.println("A");\n} else if (x >= 70) {\n    System.out.println("");\n} else {\n    System.out.println("C");\n}'),target:"B",requiresComment:false,
     hints:["x = 75 ไม่ถึง 80 แต่ถึง 70 จึงได้ B","เติม B ใน println ของ else if"],
     solution:jMain('int x = 75;\nif (x >= 80) {\n    System.out.println("A");\n} else if (x >= 70) {\n    System.out.println("B");\n} else {\n    System.out.println("C");\n}')},
-  {scaffold:true,id:"equals",title:"String equals",
+  {id:"equals",title:"String equals",
     description:"เปรียบเทียบข้อความใน Java ใช้ .equals() ไม่ใช่ == (== ใช้กับตัวเลข)",
     example:jMain('String pet = "cat";\nif (pet.equals("cat")) {\n    System.out.println("meow");\n}'),
     keyPoints:["ข้อความใช้ .equals() เปรียบเทียบ","ตัวเลขใช้ == เปรียบเทียบ","ตัวพิมพ์ต้องตรงกัน"],
@@ -3831,7 +4428,7 @@ const JAVA_CONDITIONS_EXERCISES = [
     starter:jMain('String name = "cat";\nif (name.equals("cat")) {\n    System.out.println("");\n} else {\n    System.out.println("who");\n}'),target:"meow",requiresComment:false,
     hints:['ใช้ name.equals("cat")',"เติม meow ใน println แรก"],
     solution:jMain('String name = "cat";\nif (name.equals("cat")) {\n    System.out.println("meow");\n} else {\n    System.out.println("who");\n}')},
-  {scaffold:true,id:"and-or",title:"Chapter Checkpoint",
+  {id:"and-or",title:"Chapter Checkpoint",
     description:"&& (และ) เป็น true เมื่อทั้งสองเงื่อนไขจริง, || (หรือ) เป็น true เมื่อมีข้อใดข้อหนึ่งจริง",
     example:jMain('int age = 20;\nboolean vip = true;\nif (age >= 18 && vip) {\n    System.out.println("ok");\n}'),
     keyPoints:["&& ต้องจริงทั้งคู่","|| จริงข้างเดียวก็พอ","ตัวแปร boolean ใช้เป็นเงื่อนไขได้เลย"],
@@ -3842,7 +4439,7 @@ const JAVA_CONDITIONS_EXERCISES = [
 ];
 
 const JAVA_LOOPS_EXERCISES = [
-  {scaffold:true,id:"for-basic",title:"for loop",
+  {id:"for-basic",title:"for loop",
     description:"for วนซ้ำตามจำนวนรอบ: for (เริ่มต้น; เงื่อนไข; เพิ่มค่า) โดย i++ คือเพิ่ม i ทีละ 1",
     example:jMain('for (int i = 0; i < 3; i++) {\n    System.out.println(i);\n}'),
     keyPoints:["for มีสามส่วน คั่นด้วย ;","i++ เพิ่มค่า i ทีละ 1","i < 3 ได้ 0, 1, 2"],
@@ -3850,7 +4447,7 @@ const JAVA_LOOPS_EXERCISES = [
     starter:jMain('for (int i = 0; i < 3; i++) {\n    System.out.println();\n}'),target:"0\n1\n2",requiresComment:false,
     hints:["println(i) เพื่อพิมพ์ค่าตัวนับ","i < 3 ให้ 0,1,2"],
     solution:jMain('for (int i = 0; i < 3; i++) {\n    System.out.println(i);\n}')},
-  {scaffold:true,id:"for-range",title:"for with range",
+  {id:"for-range",title:"for with range",
     description:"เปลี่ยนค่าเริ่มต้นและเงื่อนไขเพื่อกำหนดช่วงตัวเลขที่ต้องการ",
     example:jMain('for (int i = 2; i <= 5; i++) {\n    System.out.println(i);\n}'),
     keyPoints:["เริ่มที่ค่าใดก็ได้","<= รวมค่าสุดท้าย","ปรับช่วงได้ตามต้องการ"],
@@ -3858,7 +4455,7 @@ const JAVA_LOOPS_EXERCISES = [
     starter:jMain('for (int i = 1; i <= 3; i++) {\n    System.out.println();\n}'),target:"1\n2\n3",requiresComment:false,
     hints:["เริ่ม i = 1 เงื่อนไข i <= 3","println(i)"],
     solution:jMain('for (int i = 1; i <= 3; i++) {\n    System.out.println(i);\n}')},
-  {scaffold:true,id:"accumulate",title:"Accumulate",
+  {id:"accumulate",title:"Accumulate",
     description:"สะสมค่าในตัวแปร total โดยบวกเพิ่มทุกรอบด้วย total += i แล้วพิมพ์ผลรวมหลังจบลูป",
     example:jMain('int total = 0;\nfor (int i = 1; i <= 3; i++) {\n    total += i;\n}\nSystem.out.println(total);'),
     keyPoints:["เริ่ม total = 0 ก่อนลูป","total += i บวกเพิ่มทุกรอบ","พิมพ์ผลรวมหลังลูป"],
@@ -3866,7 +4463,7 @@ const JAVA_LOOPS_EXERCISES = [
     starter:jMain('int total = 0;\nfor (int i = 1; i <= 4; i++) {\n    total += i;\n}\nSystem.out.println();'),target:"10",requiresComment:false,
     hints:["println(total) หลังจบลูป","1+2+3+4 = 10"],
     solution:jMain('int total = 0;\nfor (int i = 1; i <= 4; i++) {\n    total += i;\n}\nSystem.out.println(total);')},
-  {scaffold:true,id:"while",title:"while loop",
+  {id:"while",title:"while loop",
     description:"while ทำซ้ำตราบใดที่เงื่อนไขยังจริง ต้องมีคำสั่งที่ทำให้เงื่อนไขหยุด",
     example:jMain('int n = 3;\nwhile (n > 0) {\n    System.out.println(n);\n    n = n - 1;\n}'),
     keyPoints:["while ทำงานขณะเงื่อนไขจริง","ต้องลดค่า n เพื่อให้หยุด","ถ้าลืม จะวนไม่รู้จบ"],
@@ -3874,7 +4471,7 @@ const JAVA_LOOPS_EXERCISES = [
     starter:jMain('int n = 3;\nwhile (n > 0) {\n    System.out.println(n);\n\n}'),target:"3\n2\n1",requiresComment:false,
     hints:["เพิ่มบรรทัด n = n - 1; ในลูป","ถ้าไม่ลด n เงื่อนไขจะจริงตลอด"],
     solution:jMain('int n = 3;\nwhile (n > 0) {\n    System.out.println(n);\n    n = n - 1;\n}')},
-  {scaffold:true,id:"loop-cond",title:"Chapter Checkpoint",
+  {id:"loop-cond",title:"Chapter Checkpoint",
     description:"รวมลูปกับเงื่อนไข: เลือกทำเฉพาะเลขคู่ด้วย i % 2 == 0",
     example:jMain('for (int i = 0; i < 4; i++) {\n    if (i % 2 == 0) {\n        System.out.println(i);\n    }\n}'),
     keyPoints:["i % 2 == 0 คือเลขคู่","if อยู่ในลูป","ระวังปีกกาให้ครบคู่"],
@@ -3885,7 +4482,7 @@ const JAVA_LOOPS_EXERCISES = [
 ];
 
 const JAVA_ARRAYS_EXERCISES = [
-  {scaffold:true,id:"index",title:"Array & Index",
+  {id:"index",title:"Array & Index",
     description:"array เก็บค่าหลายค่า สร้างด้วย ชนิด[] ชื่อ = { ... }; เข้าถึงสมาชิกด้วยดัชนีเริ่มจาก 0",
     example:jMain('int[] nums = {10, 20, 30};\nSystem.out.println(nums[1]);'),
     keyPoints:["ประกาศ array: int[] ชื่อ = {...};","ดัชนีเริ่มที่ 0","nums[0] คือตัวแรก"],
@@ -3893,7 +4490,7 @@ const JAVA_ARRAYS_EXERCISES = [
     starter:jMain('int[] nums = {10, 20, 30};\nSystem.out.println();'),target:"10",requiresComment:false,
     hints:["ตัวแรกคือ nums[0]","println(nums[0])"],
     solution:jMain('int[] nums = {10, 20, 30};\nSystem.out.println(nums[0]);')},
-  {scaffold:true,id:"length",title:"length",
+  {id:"length",title:"length",
     description:"array.length บอกจำนวนสมาชิกใน array (ไม่มีวงเล็บ)",
     example:jMain('int[] items = {1, 2, 3};\nSystem.out.println(items.length);'),
     keyPoints:["nums.length คืนจำนวนสมาชิก","ไม่มีวงเล็บหลัง length","ผลลัพธ์เป็นจำนวนเต็ม"],
@@ -3901,7 +4498,7 @@ const JAVA_ARRAYS_EXERCISES = [
     starter:jMain('int[] nums = {1, 2, 3, 4};\nSystem.out.println();'),target:"4",requiresComment:false,
     hints:["ใช้ nums.length","println(nums.length)"],
     solution:jMain('int[] nums = {1, 2, 3, 4};\nSystem.out.println(nums.length);')},
-  {scaffold:true,id:"loop-array",title:"Loop an Array",
+  {id:"loop-array",title:"Loop an Array",
     description:"ใช้ for คู่กับ length วนอ่านสมาชิกทุกตัวใน array",
     example:jMain('int[] a = {5, 6};\nfor (int i = 0; i < a.length; i++) {\n    System.out.println(a[i]);\n}'),
     keyPoints:["วนจาก 0 ถึง length-1","a[i] คือสมาชิกตำแหน่ง i","ใช้ i < a.length เป็นเงื่อนไข"],
@@ -3909,7 +4506,7 @@ const JAVA_ARRAYS_EXERCISES = [
     starter:jMain('int[] nums = {5, 10, 15};\nfor (int i = 0; i < nums.length; i++) {\n    System.out.println();\n}'),target:"5\n10\n15",requiresComment:false,
     hints:["println(nums[i]) ในลูป","เงื่อนไข i < nums.length"],
     solution:jMain('int[] nums = {5, 10, 15};\nfor (int i = 0; i < nums.length; i++) {\n    System.out.println(nums[i]);\n}')},
-  {scaffold:true,id:"sum-array",title:"Sum an Array",
+  {id:"sum-array",title:"Sum an Array",
     description:"รวมค่าทุกตัวใน array โดยสะสมในตัวแปร total ระหว่างวนลูป",
     example:jMain('int[] a = {1, 2, 3};\nint total = 0;\nfor (int i = 0; i < a.length; i++) {\n    total += a[i];\n}\nSystem.out.println(total);'),
     keyPoints:["เริ่ม total = 0","total += a[i] ทุกรอบ","พิมพ์ผลรวมหลังลูป"],
@@ -3917,7 +4514,7 @@ const JAVA_ARRAYS_EXERCISES = [
     starter:jMain('int[] scores = {10, 20, 30};\nint total = 0;\nfor (int i = 0; i < scores.length; i++) {\n    total += scores[i];\n}\nSystem.out.println();'),target:"60",requiresComment:false,
     hints:["println(total) หลังลูป","10+20+30 = 60"],
     solution:jMain('int[] scores = {10, 20, 30};\nint total = 0;\nfor (int i = 0; i < scores.length; i++) {\n    total += scores[i];\n}\nSystem.out.println(total);')},
-  {scaffold:true,id:"string-array",title:"Chapter Checkpoint",
+  {id:"string-array",title:"Chapter Checkpoint",
     description:"array เก็บข้อความได้ด้วยชนิด String[] แล้ววนอ่านเหมือน array ตัวเลข",
     example:jMain('String[] colors = {"red", "green"};\nfor (int i = 0; i < colors.length; i++) {\n    System.out.println(colors[i]);\n}'),
     keyPoints:["String[] เก็บข้อความหลายค่า","วนด้วย for และ length เหมือนกัน","แต่ละสมาชิกเป็น String"],
@@ -3928,7 +4525,7 @@ const JAVA_ARRAYS_EXERCISES = [
 ];
 
 const JAVA_METHODS_EXERCISES = [
-  {scaffold:true,id:"define-call",title:"Define & Call",
+  {id:"define-call",title:"Define & Call",
     description:"เมธอดคือชุดคำสั่งที่ตั้งชื่อไว้เรียกซ้ำ ประกาศด้วย static void ชื่อ() { ... } แล้วเรียกด้วยชื่อ()",
     example:'public class Main {\n    static void hello() {\n        System.out.println("hi");\n    }\n    public static void main(String[] args) {\n        hello();\n    }\n}',
     keyPoints:["static void ชื่อ() { } สร้างเมธอด","void = ไม่คืนค่า","เรียกด้วยชื่อเมธอด()"],
@@ -3936,7 +4533,7 @@ const JAVA_METHODS_EXERCISES = [
     starter:'public class Main {\n    static void greet() {\n        System.out.println("");\n    }\n    public static void main(String[] args) {\n        greet();\n    }\n}',target:"hi",requiresComment:false,
     hints:["ใส่ hi ใน println ภายใน greet","บรรทัด greet(); ใน main คือการเรียกใช้"],
     solution:'public class Main {\n    static void greet() {\n        System.out.println("hi");\n    }\n    public static void main(String[] args) {\n        greet();\n    }\n}'},
-  {scaffold:true,id:"parameter",title:"Parameter",
+  {id:"parameter",title:"Parameter",
     description:"พารามิเตอร์คือค่าที่ส่งเข้าเมธอด ระบุชนิดและชื่อในวงเล็บ",
     example:'public class Main {\n    static void greet(String name) {\n        System.out.println("Hi " + name);\n    }\n    public static void main(String[] args) {\n        greet("Sun");\n    }\n}',
     keyPoints:["ประกาศพารามิเตอร์: ชนิด ชื่อ","ส่งค่าเข้าตอนเรียกใช้","ใช้พารามิเตอร์เหมือนตัวแปรในเมธอด"],
@@ -3944,7 +4541,7 @@ const JAVA_METHODS_EXERCISES = [
     starter:'public class Main {\n    static void greet(String name) {\n        System.out.println("Hi " + name);\n    }\n    public static void main(String[] args) {\n        greet("");\n    }\n}',target:"Hi Cat",requiresComment:false,
     hints:['ใส่ "Cat" ตอนเรียก greet("Cat")','ในเมธอดใช้ "Hi " + name'],
     solution:'public class Main {\n    static void greet(String name) {\n        System.out.println("Hi " + name);\n    }\n    public static void main(String[] args) {\n        greet("Cat");\n    }\n}'},
-  {scaffold:true,id:"return",title:"return",
+  {id:"return",title:"return",
     description:"return ส่งค่ากลับจากเมธอด ต้องระบุชนิดค่าที่คืน (เช่น int) แทน void",
     example:'public class Main {\n    static int add(int a, int b) {\n        return a + b;\n    }\n    public static void main(String[] args) {\n        System.out.println(add(2, 3));\n    }\n}',
     keyPoints:["ระบุชนิดค่าที่คืน เช่น int","return ส่งค่ากลับ","นำค่าไปพิมพ์หรือใช้ต่อได้"],
@@ -3952,7 +4549,7 @@ const JAVA_METHODS_EXERCISES = [
     starter:'public class Main {\n    static int add(int a, int b) {\n        return 0;\n    }\n    public static void main(String[] args) {\n        System.out.println(add(2, 3));\n    }\n}',target:"5",requiresComment:false,
     hints:["return a + b;","add(2, 3) = 5"],
     solution:'public class Main {\n    static int add(int a, int b) {\n        return a + b;\n    }\n    public static void main(String[] args) {\n        System.out.println(add(2, 3));\n    }\n}'},
-  {scaffold:true,id:"reuse",title:"Reuse",
+  {id:"reuse",title:"Reuse",
     description:"เรียกใช้เมธอดซ้ำด้วยค่าต่างกันได้ไม่จำกัด",
     example:'public class Main {\n    static int doubleIt(int x) {\n        return x + x;\n    }\n    public static void main(String[] args) {\n        System.out.println(doubleIt(5));\n    }\n}',
     keyPoints:["ออกแบบเมธอดให้รับค่าและคืนผล","เรียกซ้ำด้วยค่าใหม่ได้","x * x คือยกกำลังสอง"],
@@ -3960,7 +4557,7 @@ const JAVA_METHODS_EXERCISES = [
     starter:'public class Main {\n    static int square(int x) {\n        return 0;\n    }\n    public static void main(String[] args) {\n        System.out.println(square(4));\n    }\n}',target:"16",requiresComment:false,
     hints:["return x * x;","square(4) = 16"],
     solution:'public class Main {\n    static int square(int x) {\n        return x * x;\n    }\n    public static void main(String[] args) {\n        System.out.println(square(4));\n    }\n}'},
-  {scaffold:true,id:"method-checkpoint",title:"Chapter Checkpoint",
+  {id:"method-checkpoint",title:"Chapter Checkpoint",
     description:"รวมพลัง: เมธอดที่รับข้อความ ประกอบประโยค แล้วคืนค่าไปพิมพ์",
     example:'public class Main {\n    static String welcome(String name) {\n        return "Hi, " + name;\n    }\n    public static void main(String[] args) {\n        System.out.println(welcome("Sun"));\n    }\n}',
     keyPoints:["เมธอดคืนค่า String ได้","ใช้พารามิเตอร์ประกอบข้อความ","พิมพ์ผลจากการเรียกเมธอด"],
@@ -3979,7 +4576,7 @@ const JAVA_CLASSES_EXERCISES = [
     starter:'class Cat {\n    String name;\n    Cat(String name) {\n        this.name = name;\n    }\n}\npublic class Main {\n    public static void main(String[] args) {\n        Cat c = new Cat("Mochi");\n        System.out.println();\n    }\n}',target:"Mochi",requiresComment:false,
     hints:["ใช้ System.out.println(c.name);","c.name คือค่าที่เก็บตอนสร้างออบเจ็กต์"],
     solution:'class Cat {\n    String name;\n    Cat(String name) {\n        this.name = name;\n    }\n}\npublic class Main {\n    public static void main(String[] args) {\n        Cat c = new Cat("Mochi");\n        System.out.println(c.name);\n    }\n}'},
-  {scaffold:true,id:"method",title:"Method",
+  {id:"method",title:"Method",
     description:"เมธอดในคลาสเรียกผ่านออบเจ็กต์ด้วย object.method()",
     example:'class Dog {\n    void bark() {\n        System.out.println("woof");\n    }\n}\npublic class Main {\n    public static void main(String[] args) {\n        Dog d = new Dog();\n        d.bark();\n    }\n}',
     keyPoints:["เมธอดของคลาสไม่ต้องมี static","เรียกด้วย object.method()","ไม่จำเป็นต้องมี constructor เสมอไป"],
@@ -4014,7 +4611,7 @@ const JAVA_CLASSES_EXERCISES = [
 ];
 
 const JAVA_FINAL_EXERCISES = [
-  {scaffold:true,id:"card",title:"Player Card",
+  {id:"card",title:"Player Card",
     description:"เริ่มโปรเจกต์: ทบทวนตัวแปรและการเชื่อมข้อความด้วย +",
     example:jMain('String name = "Milo";\nint level = 5;\nSystem.out.println(name + " - Lv." + level);'),
     keyPoints:["ทบทวนตัวแปรและ +","String + ตัวเลข ได้ข้อความ","ระวังช่องว่างในข้อความ"],
@@ -4022,7 +4619,7 @@ const JAVA_FINAL_EXERCISES = [
     starter:jMain('String name = "Cat";\nint level = 3;\nSystem.out.println();'),target:"Cat is level 3",requiresComment:false,
     hints:['ใช้ name + " is level " + level','อย่าลืมช่องว่างในข้อความ'],
     solution:jMain('String name = "Cat";\nint level = 3;\nSystem.out.println(name + " is level " + level);')},
-  {scaffold:true,id:"filter",title:"Filter with Loop",
+  {id:"filter",title:"Filter with Loop",
     description:"ทบทวนลูปและเงื่อนไข: เลือกทำเฉพาะค่าที่ผ่านเกณฑ์",
     example:jMain('for (int i = 0; i < 5; i++) {\n    if (i > 2) {\n        System.out.println(i);\n    }\n}'),
     keyPoints:["ผสม for กับ if","เลือกเฉพาะค่าที่ต้องการ","ระวังปีกกาสองชั้น"],
@@ -4030,7 +4627,7 @@ const JAVA_FINAL_EXERCISES = [
     starter:jMain('for (int i = 0; i < 5; i++) {\n    if (i > 2) {\n        System.out.println();\n    }\n}'),target:"3\n4",requiresComment:false,
     hints:["เงื่อนไข i > 2","println(i) ใน if"],
     solution:jMain('for (int i = 0; i < 5; i++) {\n    if (i > 2) {\n        System.out.println(i);\n    }\n}')},
-  {scaffold:true,id:"method",title:"Build a Method",
+  {id:"method",title:"Build a Method",
     description:"ทบทวนเมธอด: ห่อโค้ดที่ใช้ซ้ำเป็นเมธอดที่คืนค่า",
     example:'public class Main {\n    static int triple(int x) {\n        return x * 3;\n    }\n    public static void main(String[] args) {\n        System.out.println(triple(4));\n    }\n}',
     keyPoints:["ออกแบบเมธอดรับค่าและคืนผล","นำผลไปพิมพ์","ตั้งชื่อให้สื่อความหมาย"],
@@ -4038,7 +4635,7 @@ const JAVA_FINAL_EXERCISES = [
     starter:'public class Main {\n    static int addTax(int price) {\n        return 0;\n    }\n    public static void main(String[] args) {\n        System.out.println(addTax(50));\n    }\n}',target:"60",requiresComment:false,
     hints:["return price + 10;","addTax(50) = 60"],
     solution:'public class Main {\n    static int addTax(int price) {\n        return price + 10;\n    }\n    public static void main(String[] args) {\n        System.out.println(addTax(50));\n    }\n}'},
-  {scaffold:true,id:"process-array",title:"Process an Array",
+  {id:"process-array",title:"Process an Array",
     description:"ทบทวน array กับลูป: หาผลรวมของสมาชิกทั้งหมด",
     example:jMain('int[] nums = {1, 2, 3};\nint total = 0;\nfor (int i = 0; i < nums.length; i++) {\n    total += nums[i];\n}\nSystem.out.println(total);'),
     keyPoints:["วนอ่านสมาชิกด้วย for","สะสมผลรวมในตัวแปร","พิมพ์ผลรวมหลังลูป"],
@@ -4330,7 +4927,7 @@ const C_COURSE = [
 ];
 
 const C_HELLO_EXERCISES = [
-  lx({id:"first-print",title:"First printf",
+  lx({scaffold:false,id:"first-print",title:"First printf",
     description:"printf() พิมพ์ข้อความออกหน้าจอ แต่จะไม่ขึ้นบรรทัดใหม่ให้เอง ต้องใส่ \\n ปิดท้ายข้อความ",
     example:cMain('printf("Ready!\\n");'),
     keyPoints:["printf อยู่ในไลบรารี stdio.h จึงต้องมี #include <stdio.h>","\\n คือการขึ้นบรรทัดใหม่","ทุกคำสั่งจบด้วย ;"],
@@ -4338,7 +4935,7 @@ const C_HELLO_EXERCISES = [
     starter:cMain('printf("\\n");'),target:"Hello, world!",
     hints:["ใส่ Hello, world! ไว้หน้า \\n ในเครื่องหมายคำพูด",'printf("Hello, world!\\n");'],
     solution:cMain('printf("Hello, world!\\n");')}),
-  lx({id:"same-line",title:"Same Line",
+  lx({scaffold:false,id:"same-line",title:"Same Line",
     description:"ถ้าไม่มี \\n ข้อความจาก printf หลายครั้งจะต่อกันในบรรทัดเดียว",
     example:cMain('printf("Code ");\nprintf("Cats\\n");'),
     keyPoints:["printf ไม่ขึ้นบรรทัดใหม่เอง","ช่องว่างต้องใส่เองในข้อความ","ใส่ \\n ที่ printf สุดท้ายเพื่อจบบรรทัด"],
@@ -4346,7 +4943,7 @@ const C_HELLO_EXERCISES = [
     starter:cMain('printf("C ");\nprintf("");'),target:"C Adventure",
     hints:["printf แรกมีช่องว่างหลัง C อยู่แล้ว","printf ที่สองใส่ Adventure ตามด้วย \\n"],
     solution:cMain('printf("C ");\nprintf("Adventure\\n");')}),
-  lx({id:"two-lines",title:"Two Lines",
+  lx({scaffold:false,id:"two-lines",title:"Two Lines",
     description:"ใส่ \\n กลางข้อความเพื่อแบ่งเป็นหลายบรรทัดได้ในคำสั่งเดียว",
     example:cMain('printf("Moon\\nMap\\n");'),
     keyPoints:["\\n ใส่ได้ทุกตำแหน่งในข้อความ","หนึ่ง printf พิมพ์ได้หลายบรรทัด","ลำดับตัวอักษรคือลำดับผลลัพธ์"],
@@ -4354,7 +4951,7 @@ const C_HELLO_EXERCISES = [
     starter:cMain('printf("\\n");'),target:"Hello\nC",
     hints:["ใส่ \\n คั่นระหว่าง Hello กับ C",'printf("Hello\\nC\\n");'],
     solution:cMain('printf("Hello\\nC\\n");')}),
-  lx({id:"comments",title:"Comments",requiresComment:true,
+  lx({scaffold:false,id:"comments",title:"Comments",requiresComment:true,
     description:"คอมเมนต์ใน C มีสองแบบ: // สำหรับบรรทัดเดียว และ /* ... */ สำหรับหลายบรรทัด คอมไพเลอร์จะข้ามไป",
     example:cMain('// บันทึกสั้น ๆ\n/* อธิบาย\n   หลายบรรทัด */\nprintf("Saved\\n");'),
     keyPoints:["// คอมเมนต์หนึ่งบรรทัด","/* */ คอมเมนต์หลายบรรทัด","คอมเมนต์ไม่ถูกแสดงผล"],
@@ -4362,7 +4959,7 @@ const C_HELLO_EXERCISES = [
     starter:cMain('printf("\\n");'),target:"Keep coding!",
     hints:["เพิ่มบรรทัดที่ขึ้นต้นด้วย // เหนือ printf","ใส่ Keep coding! หน้า \\n"],
     solution:cMain('// ส่งกำลังใจ\nprintf("Keep coding!\\n");')}),
-  lx({id:"checkpoint",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"checkpoint",title:"Chapter Checkpoint",
     description:"รวมพลังบทนี้: พิมพ์ข้อความต้อนรับสองบรรทัดให้ตรงตามโจทย์",
     example:cMain('printf("Quest started\\n");\nprintf("Let us go\\n");'),
     keyPoints:["ตรวจตัวพิมพ์และเครื่องหมายวรรคตอน","อย่าลืม \\n ทุกบรรทัด","กด Run ดูผลก่อนตรวจคำตอบ"],
@@ -4373,7 +4970,7 @@ const C_HELLO_EXERCISES = [
 ];
 
 const C_VARIABLES_EXERCISES = [
-  lx({id:"int-var",title:"int & %d",
+  lx({scaffold:false,id:"int-var",title:"int & %d",
     description:"ประกาศตัวแปรด้วย ชนิด ชื่อ = ค่า; แล้วใช้ %d เป็นช่องแสดงจำนวนเต็มใน printf",
     example:cMain('int score = 100;\nprintf("%d\\n", score);'),
     keyPoints:["int เก็บจำนวนเต็ม","%d คือช่องสำหรับแสดง int","ค่าที่จะแสดงเขียนต่อท้ายข้อความ คั่นด้วย ,"],
@@ -4381,7 +4978,7 @@ const C_VARIABLES_EXERCISES = [
     starter:cMain('int age = 0;\nprintf("%d\\n", age);'),target:"7",
     hints:["เปลี่ยน 0 เป็น 7","printf ใช้ %d แสดงค่า age"],
     solution:cMain('int age = 7;\nprintf("%d\\n", age);')}),
-  lx({id:"double-var",title:"double & %.2f",
+  lx({scaffold:false,id:"double-var",title:"double & %.2f",
     description:"%f แสดงทศนิยม 6 ตำแหน่งเสมอ ใช้ %.2f เพื่อให้เหลือ 2 ตำแหน่ง",
     example:cMain('double pi = 3.14159;\nprintf("%.2f\\n", pi);'),
     keyPoints:["double เก็บเลขทศนิยม","%f แสดง 6 ตำแหน่ง เช่น 19.500000","%.2f แสดง 2 ตำแหน่ง เช่น 19.50"],
@@ -4389,7 +4986,7 @@ const C_VARIABLES_EXERCISES = [
     starter:cMain('double price = 19.5;\nprintf("%f\\n", price);'),target:"19.50",
     hints:["%f ตอนนี้แสดง 19.500000","เปลี่ยนเป็น %.2f"],
     solution:cMain('double price = 19.5;\nprintf("%.2f\\n", price);')}),
-  lx({id:"char-var",title:"char & %c",
+  lx({scaffold:false,id:"char-var",title:"char & %c",
     description:"char เก็บตัวอักษรเดี่ยว เขียนในเครื่องหมาย ' ' และแสดงด้วย %c",
     example:cMain("char grade = 'B';\nprintf(\"%c\\n\", grade);"),
     keyPoints:["ตัวอักษรเดี่ยวใช้ ' ' ไม่ใช่ \" \"","%c แสดง char","char เก็บได้ครั้งละ 1 ตัว"],
@@ -4397,7 +4994,7 @@ const C_VARIABLES_EXERCISES = [
     starter:cMain("char grade = ' ';\nprintf(\"%c\\n\", grade);"),target:"A",
     hints:["ใส่ A ระหว่าง ' '","char grade = 'A';"],
     solution:cMain("char grade = 'A';\nprintf(\"%c\\n\", grade);")}),
-  lx({id:"many-values",title:"Many Values",
+  lx({scaffold:false,id:"many-values",title:"Many Values",
     description:"printf แทรกได้หลายค่าในคำสั่งเดียว โดยเรียงค่าตามลำดับของตัวกำหนดรูปแบบ (%)",
     example:cMain('int a = 3, b = 4;\nprintf("%d and %d\\n", a, b);'),
     keyPoints:["จำนวน % ต้องเท่ากับจำนวนค่าที่ส่ง","ค่าแรกเติม % ตัวแรก ค่าที่สองเติม % ตัวที่สอง","คั่นค่าด้วยเครื่องหมาย ,"],
@@ -4405,7 +5002,7 @@ const C_VARIABLES_EXERCISES = [
     starter:cMain('int level = 3;\nint hp = 80;\nprintf("Level %d HP %d\\n");'),target:"Level 3 HP 80",
     hints:["ส่ง level และ hp ต่อท้ายข้อความ คั่นด้วย ,",'printf("Level %d HP %d\\n", level, hp);'],
     solution:cMain('int level = 3;\nint hp = 80;\nprintf("Level %d HP %d\\n", level, hp);')}),
-  lx({id:"total",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"total",title:"Chapter Checkpoint",
     description:"คำนวณค่าเก็บในตัวแปร แล้วแสดงผลเป็นทศนิยม 2 ตำแหน่ง",
     example:cMain('double w = 2.5;\ndouble h = 2;\nprintf("%.2f\\n", w * h);'),
     keyPoints:["double คูณ int ได้ double","เก็บผลลัพธ์ไว้ในตัวแปรก่อนแสดงก็ได้","%.2f แสดงทศนิยม 2 ตำแหน่ง"],
@@ -4416,7 +5013,7 @@ const C_VARIABLES_EXERCISES = [
 ];
 
 const C_CONDITIONS_EXERCISES = [
-  lx({id:"int-division",title:"Integer Division",
+  lx({scaffold:false,id:"int-division",title:"Integer Division",
     description:"หารจำนวนเต็มด้วยจำนวนเต็มใน C จะตัดเศษทิ้งเสมอ ส่วน % ให้เศษของการหาร",
     example:cMain('printf("%d\\n", 7 / 2);\nprintf("%d\\n", 7 % 2);'),
     keyPoints:["7 / 2 ได้ 3 ไม่ใช่ 3.5","7 % 2 ได้เศษ 1","ถ้าต้องการทศนิยม ใช้ (double)7 / 2"],
@@ -4424,7 +5021,7 @@ const C_CONDITIONS_EXERCISES = [
     starter:cMain('int total = 17;\nint friends = 5;\nprintf("%d %d\\n", 0, 0);'),target:"3 2",
     hints:["คนละ = total / friends","เหลือ = total % friends"],
     solution:cMain('int total = 17;\nint friends = 5;\nprintf("%d %d\\n", total / friends, total % friends);')}),
-  lx({id:"first-if",title:"First if",
+  lx({scaffold:false,id:"first-if",title:"First if",
     description:"if ตรวจเงื่อนไขในวงเล็บ ถ้าเป็นจริงจะทำคำสั่งในปีกกา { }",
     example:cMain('int age = 20;\nif (age >= 18) {\n    printf("adult\\n");\n}'),
     keyPoints:["เงื่อนไขอยู่ใน ( )","คำสั่งอยู่ใน { }","ทำงานเมื่อเงื่อนไขเป็นจริง"],
@@ -4432,7 +5029,7 @@ const C_CONDITIONS_EXERCISES = [
     starter:cMain('int age = 20;\nif (age >= 18) {\n    printf("\\n");\n}'),target:"adult",
     hints:["ใส่ adult ใน printf","เงื่อนไข age >= 18 เป็นจริงอยู่แล้ว"],
     solution:cMain('int age = 20;\nif (age >= 18) {\n    printf("adult\\n");\n}')}),
-  lx({id:"if-else",title:"if / else",
+  lx({scaffold:false,id:"if-else",title:"if / else",
     description:"else ทำงานเมื่อเงื่อนไขของ if เป็นเท็จ",
     example:cMain('int score = 80;\nif (score >= 50) {\n    printf("pass\\n");\n} else {\n    printf("fail\\n");\n}'),
     keyPoints:["else ไม่มีเงื่อนไข","ทำงานเมื่อ if เป็นเท็จ","ทั้งสองบล็อกใช้ { }"],
@@ -4440,7 +5037,7 @@ const C_CONDITIONS_EXERCISES = [
     starter:cMain('int score = 45;\nif (score >= 50) {\n    printf("pass\\n");\n} else {\n    printf("\\n");\n}'),target:"fail",
     hints:["45 น้อยกว่า 50 จึงเข้า else","ใส่ fail ใน printf ของ else"],
     solution:cMain('int score = 45;\nif (score >= 50) {\n    printf("pass\\n");\n} else {\n    printf("fail\\n");\n}')}),
-  lx({id:"else-if",title:"else if",
+  lx({scaffold:false,id:"else-if",title:"else if",
     description:"else if ตรวจเงื่อนไขเพิ่มทีละขั้น และหยุดที่เงื่อนไขแรกที่เป็นจริง",
     example:cMain('int x = 90;\nif (x >= 80) {\n    printf("A\\n");\n} else if (x >= 70) {\n    printf("B\\n");\n} else {\n    printf("C\\n");\n}'),
     keyPoints:["เรียงเงื่อนไขจากมากไปน้อย","หยุดที่เงื่อนไขแรกที่จริง","else รับกรณีที่เหลือ"],
@@ -4448,7 +5045,7 @@ const C_CONDITIONS_EXERCISES = [
     starter:cMain('int x = 75;\nif (x >= 80) {\n    printf("A\\n");\n} else if (x >= 70) {\n    printf("\\n");\n} else {\n    printf("C\\n");\n}'),target:"B",
     hints:["75 ไม่ถึง 80 แต่ถึง 70","เติม B ใน printf ของ else if"],
     solution:cMain('int x = 75;\nif (x >= 80) {\n    printf("A\\n");\n} else if (x >= 70) {\n    printf("B\\n");\n} else {\n    printf("C\\n");\n}')}),
-  lx({id:"and-or",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"and-or",title:"Chapter Checkpoint",
     description:"C ถือว่า 0 คือเท็จ และค่าอื่นคือจริง ใช้ && (และ) || (หรือ) ! (ไม่) รวมเงื่อนไข",
     example:cMain('int age = 20;\nint vip = 1;\nif (age >= 18 && vip) {\n    printf("ok\\n");\n}'),
     keyPoints:["&& ต้องจริงทั้งสองฝั่ง","|| จริงฝั่งเดียวก็พอ","1 หมายถึงจริง 0 หมายถึงเท็จ"],
@@ -4459,7 +5056,7 @@ const C_CONDITIONS_EXERCISES = [
 ];
 
 const C_LOOPS_EXERCISES = [
-  lx({id:"for-basic",title:"for loop",
+  lx({scaffold:false,id:"for-basic",title:"for loop",
     description:"for (เริ่มต้น; เงื่อนไข; เปลี่ยนค่า) วนซ้ำตามจำนวนรอบ i++ เพิ่ม i ทีละ 1",
     example:cMain('for (int i = 0; i < 3; i++) {\n    printf("%d\\n", i);\n}'),
     keyPoints:["3 ส่วนคั่นด้วย ;","i < 3 ได้ 0, 1, 2","ตัวแปร i ใช้ได้เฉพาะในลูป"],
@@ -4475,7 +5072,7 @@ const C_LOOPS_EXERCISES = [
     starter:cMain('for (int i = 1; i <= 5; i++) {\n    printf("%d\\n", i);\n}'),target:"1 2 3 4 5",
     hints:["ใน printf เปลี่ยน \\n เป็นช่องว่าง","เพิ่ม printf(\"\\n\"); หลังปีกกาปิดของลูป"],
     solution:cMain('for (int i = 1; i <= 5; i++) {\n    printf("%d ", i);\n}\nprintf("\\n");')}),
-  lx({id:"sum",title:"Accumulate",
+  lx({scaffold:false,id:"sum",title:"Accumulate",
     description:"สะสมค่าในตัวแปร total ทุกรอบด้วย total += i แล้วพิมพ์หลังจบลูป",
     example:cMain('int total = 0;\nfor (int i = 1; i <= 3; i++) {\n    total += i;\n}\nprintf("%d\\n", total);'),
     keyPoints:["เริ่ม total = 0 ก่อนลูป","total += i บวกเพิ่มทุกรอบ","พิมพ์ผลรวมหลังลูป"],
@@ -4483,7 +5080,7 @@ const C_LOOPS_EXERCISES = [
     starter:cMain('int total = 0;\nfor (int i = 1; i <= 10; i++) {\n\n}\nprintf("%d\\n", total);'),target:"55",
     hints:["ในลูปเพิ่มบรรทัด total += i;","1+2+...+10 = 55"],
     solution:cMain('int total = 0;\nfor (int i = 1; i <= 10; i++) {\n    total += i;\n}\nprintf("%d\\n", total);')}),
-  lx({id:"while",title:"while",
+  lx({scaffold:false,id:"while",title:"while",
     description:"while ทำซ้ำตราบใดที่เงื่อนไขยังจริง ต้องเปลี่ยนค่าในลูปเพื่อให้หยุดได้",
     example:cMain('int n = 3;\nwhile (n > 0) {\n    printf("%d\\n", n);\n    n--;\n}'),
     keyPoints:["n-- ลดค่าทีละ 1","ถ้าไม่เปลี่ยนค่า จะวนไม่รู้จบ","do-while ทำก่อนแล้วค่อยเช็กเงื่อนไข"],
@@ -4491,7 +5088,7 @@ const C_LOOPS_EXERCISES = [
     starter:cMain('int n = 3;\nwhile (n > 0) {\n    printf("%d\\n", n);\n\n}'),target:"3\n2\n1",
     hints:["เพิ่มบรรทัด n--; ในลูป","ถ้าไม่ลด n เงื่อนไขจะจริงตลอด"],
     solution:cMain('int n = 3;\nwhile (n > 0) {\n    printf("%d\\n", n);\n    n--;\n}')}),
-  lx({id:"table",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"table",title:"Chapter Checkpoint",
     description:"ใช้ลูปสร้างตารางสูตรคูณ ค่าในแต่ละบรรทัดคำนวณจากตัวนับ i",
     example:cMain('for (int i = 1; i <= 2; i++) {\n    printf("2 x %d = %d\\n", i, 2 * i);\n}'),
     keyPoints:["printf แทรกได้หลายค่า","คำนวณในตำแหน่งที่ส่งค่าได้เลย","ลำดับค่าต้องตรงกับ %d"],
@@ -4502,7 +5099,7 @@ const C_LOOPS_EXERCISES = [
 ];
 
 const C_ARRAYS_EXERCISES = [
-  lx({id:"index",title:"Array & Index",
+  lx({scaffold:false,id:"index",title:"Array & Index",
     description:"array เก็บค่าชนิดเดียวกันหลายค่า ประกาศด้วย ชนิด ชื่อ[ขนาด] และเข้าถึงด้วยดัชนีที่เริ่มจาก 0",
     example:cMain('int nums[3] = {10, 20, 30};\nprintf("%d\\n", nums[1]);'),
     keyPoints:["ดัชนีเริ่มที่ 0","nums[0] คือตัวแรก","ขนาด array คงที่หลังประกาศ"],
@@ -4510,7 +5107,7 @@ const C_ARRAYS_EXERCISES = [
     starter:cMain('int nums[3] = {10, 20, 30};\nprintf("%d\\n", 0);'),target:"10",
     hints:["ตัวแรกคือ nums[0]","เปลี่ยน 0 ใน printf เป็น nums[0]"],
     solution:cMain('int nums[3] = {10, 20, 30};\nprintf("%d\\n", nums[0]);')}),
-  lx({id:"loop-array",title:"Loop an Array",
+  lx({scaffold:false,id:"loop-array",title:"Loop an Array",
     description:"ใช้ for วนดัชนีจาก 0 ถึงขนาด-1 เพื่ออ่านสมาชิกทุกตัว",
     example:cMain('int a[2] = {5, 6};\nfor (int i = 0; i < 2; i++) {\n    printf("%d\\n", a[i]);\n}'),
     keyPoints:["i เริ่ม 0 จบที่ขนาด-1","a[i] คือสมาชิกตำแหน่ง i","อ่านเกินขนาดจะเกิดข้อผิดพลาด"],
@@ -4518,7 +5115,7 @@ const C_ARRAYS_EXERCISES = [
     starter:cMain('int nums[3] = {5, 10, 15};\nfor (int i = 0; i < 3; i++) {\n    printf("%d\\n", 0);\n}'),target:"5\n10\n15",
     hints:["เปลี่ยน 0 เป็น nums[i]","เงื่อนไข i < 3 ครบทุกตัวแล้ว"],
     solution:cMain('int nums[3] = {5, 10, 15};\nfor (int i = 0; i < 3; i++) {\n    printf("%d\\n", nums[i]);\n}')}),
-  lx({id:"sum-array",title:"Sum an Array",
+  lx({scaffold:false,id:"sum-array",title:"Sum an Array",
     description:"ไม่ต้องระบุขนาดถ้ากำหนดค่าเริ่มต้นครบ เช่น int a[] = {...}; แล้วสะสมผลรวมในลูป",
     example:cMain('int a[] = {1, 2, 3};\nint total = 0;\nfor (int i = 0; i < 3; i++) {\n    total += a[i];\n}\nprintf("%d\\n", total);'),
     keyPoints:["int a[] = {...} ให้คอมไพเลอร์นับขนาดเอง","total += a[i] สะสมค่า","พิมพ์หลังลูป"],
@@ -4526,7 +5123,7 @@ const C_ARRAYS_EXERCISES = [
     starter:cMain('int scores[] = {10, 20, 30};\nint total = 0;\nfor (int i = 0; i < 3; i++) {\n\n}\nprintf("%d\\n", total);'),target:"60",
     hints:["ในลูปเพิ่ม total += scores[i];","10+20+30 = 60"],
     solution:cMain('int scores[] = {10, 20, 30};\nint total = 0;\nfor (int i = 0; i < 3; i++) {\n    total += scores[i];\n}\nprintf("%d\\n", total);')}),
-  lx({id:"string",title:"C String",
+  lx({scaffold:false,id:"string",title:"C String",
     description:"ข้อความใน C คือ array ของ char ที่ปิดท้ายด้วย '\\0' ประกาศเป็น char ชื่อ[] = \"...\" และแสดงด้วย %s",
     example:cMain('char pet[] = "cat";\nprintf("I love %s\\n", pet);'),
     keyPoints:["char name[] = \"...\" คือข้อความ","%s แสดงข้อความ","ใช้ \" \" กับข้อความ ' ' กับตัวอักษรเดี่ยว"],
@@ -4534,7 +5131,7 @@ const C_ARRAYS_EXERCISES = [
     starter:cMain('char name[] = "Mochi";\nprintf("Hello, \\n");'),target:"Hello, Mochi",
     hints:["แทรก %s หลัง Hello,","ส่ง name ต่อท้าย: printf(\"Hello, %s\\n\", name);"],
     solution:cMain('char name[] = "Mochi";\nprintf("Hello, %s\\n", name);')}),
-  lx({id:"max",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"max",title:"Chapter Checkpoint",
     description:"รวมพลัง: วนลูปเทียบทีละตัวเพื่อหาค่ามากที่สุดใน array",
     example:cMain('int a[] = {3, 8, 5};\nint best = a[0];\nfor (int i = 1; i < 3; i++) {\n    if (a[i] > best) best = a[i];\n}\nprintf("%d\\n", best);'),
     keyPoints:["เริ่มสมมติว่าตัวแรกมากที่สุด","ถ้าเจอตัวที่มากกว่า ให้แทนที่","พิมพ์ผลหลังจบลูป"],
@@ -4686,7 +5283,7 @@ const CPP_COURSE = [
 ];
 
 const CPP_HELLO_EXERCISES = [
-  lx({id:"first-cout",title:"First cout",
+  lx({scaffold:false,id:"first-cout",title:"First cout",
     description:"cout ส่งข้อมูลออกหน้าจอด้วยตัวดำเนินการ << และ endl ใช้ขึ้นบรรทัดใหม่",
     example:cppMain('cout << "Ready!" << endl;'),
     keyPoints:["cout อยู่ใน #include <iostream>","<< ส่งค่าไปแสดงผล","endl ขึ้นบรรทัดใหม่"],
@@ -4694,7 +5291,7 @@ const CPP_HELLO_EXERCISES = [
     starter:cppMain('cout << "" << endl;'),target:"Hello, world!",
     hints:["ใส่ Hello, world! ในเครื่องหมายคำพูด",'cout << "Hello, world!" << endl;'],
     solution:cppMain('cout << "Hello, world!" << endl;')}),
-  lx({id:"chain",title:"Chain <<",
+  lx({scaffold:false,id:"chain",title:"Chain <<",
     description:"ต่อ << ได้หลายครั้งในคำสั่ง cout เดียว ค่าจะแสดงต่อกันตามลำดับ",
     example:cppMain('cout << "Code " << "Cats" << endl;'),
     keyPoints:["cout << a << b แสดง a แล้วตามด้วย b","ช่องว่างต้องใส่เอง","endl ไว้ท้ายสุด"],
@@ -4702,7 +5299,7 @@ const CPP_HELLO_EXERCISES = [
     starter:cppMain('cout << "C++ " << endl;'),target:"C++ Adventure",
     hints:["แทรก << \"Adventure\" ก่อน endl",'cout << "C++ " << "Adventure" << endl;'],
     solution:cppMain('cout << "C++ " << "Adventure" << endl;')}),
-  lx({id:"two-lines",title:"Two Lines",
+  lx({scaffold:false,id:"two-lines",title:"Two Lines",
     description:"endl หรือ \"\\n\" ทำให้ขึ้นบรรทัดใหม่ cout หลายคำสั่งจึงพิมพ์หลายบรรทัดได้",
     example:cppMain('cout << "Moon" << endl;\ncout << "Map" << endl;'),
     keyPoints:["cout หนึ่งคำสั่งไม่ขึ้นบรรทัดใหม่เองถ้าไม่มี endl","\"\\n\" ก็ขึ้นบรรทัดใหม่ได้","ลำดับคำสั่งคือลำดับผลลัพธ์"],
@@ -4710,7 +5307,7 @@ const CPP_HELLO_EXERCISES = [
     starter:cppMain('cout << "" << endl;\ncout << "" << endl;'),target:"Hello\nC++",
     hints:["cout แรกใส่ Hello","cout ที่สองใส่ C++"],
     solution:cppMain('cout << "Hello" << endl;\ncout << "C++" << endl;')}),
-  lx({id:"comments",title:"Comments",requiresComment:true,
+  lx({scaffold:false,id:"comments",title:"Comments",requiresComment:true,
     description:"คอมเมนต์ใน C++ ใช้ // หรือ /* */ เหมือนภาษา C คอมไพเลอร์จะข้ามไป",
     example:cppMain('// note\ncout << "Saved" << endl;'),
     keyPoints:["// บรรทัดเดียว","/* */ หลายบรรทัด","ไม่ถูกแสดงผล"],
@@ -4718,7 +5315,7 @@ const CPP_HELLO_EXERCISES = [
     starter:cppMain('cout << "" << endl;'),target:"Keep coding!",
     hints:["เพิ่มบรรทัด // เหนือ cout","ใส่ Keep coding! ในเครื่องหมายคำพูด"],
     solution:cppMain('// ส่งกำลังใจ\ncout << "Keep coding!" << endl;')}),
-  lx({id:"checkpoint",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"checkpoint",title:"Chapter Checkpoint",
     description:"รวมพลังบทนี้: แสดงข้อความต้อนรับสองบรรทัด",
     example:cppMain('cout << "Quest started" << endl;\ncout << "Let us go" << endl;'),
     keyPoints:["ตรวจเครื่องหมายวรรคตอน","endl ทุกบรรทัด","กด Run ก่อนตรวจคำตอบ"],
@@ -4729,7 +5326,7 @@ const CPP_HELLO_EXERCISES = [
 ];
 
 const CPP_VARIABLES_EXERCISES = [
-  lx({id:"int-var",title:"int",
+  lx({scaffold:false,id:"int-var",title:"int",
     description:"ประกาศตัวแปรด้วย ชนิด ชื่อ = ค่า; แล้วส่งให้ cout แสดงได้เลย ไม่ต้องมี %d แบบภาษา C",
     example:cppMain('int score = 100;\ncout << score << endl;'),
     keyPoints:["int เก็บจำนวนเต็ม","cout แสดงค่าตัวแปรได้โดยตรง","ทุกคำสั่งจบด้วย ;"],
@@ -4737,7 +5334,7 @@ const CPP_VARIABLES_EXERCISES = [
     starter:cppMain('int age = 0;\ncout << age << endl;'),target:"7",
     hints:["เปลี่ยน 0 เป็น 7","cout << age << endl;"],
     solution:cppMain('int age = 7;\ncout << age << endl;')}),
-  lx({id:"double-var",title:"double",
+  lx({scaffold:false,id:"double-var",title:"double",
     description:"double เก็บทศนิยม cout จะแสดงแบบตัดศูนย์ท้ายให้อัตโนมัติ เช่น 2.5",
     example:cppMain('double pi = 3.14;\ncout << pi << endl;'),
     keyPoints:["double เก็บเลขทศนิยม","cout แสดง 2.5 ไม่ใช่ 2.500000","5.0 จะแสดงเป็น 5"],
@@ -4745,7 +5342,7 @@ const CPP_VARIABLES_EXERCISES = [
     starter:cppMain('double price = 0.0;\ncout << price << endl;'),target:"2.5",
     hints:["เปลี่ยนค่าเป็น 2.5","cout << price << endl;"],
     solution:cppMain('double price = 2.5;\ncout << price << endl;')}),
-  lx({id:"string-var",title:"string",
+  lx({scaffold:false,id:"string-var",title:"string",
     description:"C++ มีชนิด string สำหรับข้อความ ใช้งานง่ายกว่า char[] ของภาษา C",
     example:cppMain('string pet = "cat";\ncout << "I love " << pet << endl;'),
     keyPoints:["string อยู่ใน #include <string>","ใช้ \" \" กับข้อความ","แสดงต่อกับข้อความอื่นด้วย <<"],
@@ -4753,7 +5350,7 @@ const CPP_VARIABLES_EXERCISES = [
     starter:cppMain('string name = "Mochi";\ncout << "Hello, " << endl;',["string"]),target:"Hello, Mochi",
     hints:["แทรก << name ก่อน endl",'cout << "Hello, " << name << endl;'],
     solution:cppMain('string name = "Mochi";\ncout << "Hello, " << name << endl;',["string"])}),
-  lx({id:"bool-var",title:"bool",
+  lx({scaffold:false,id:"bool-var",title:"bool",
     description:"bool เก็บ true หรือ false แต่เมื่อแสดงด้วย cout จะเห็นเป็น 1 (จริง) และ 0 (เท็จ)",
     example:cppMain('bool open = false;\ncout << open << endl;'),
     keyPoints:["bool มีค่า true และ false","cout แสดง true เป็น 1","cout แสดง false เป็น 0"],
@@ -4761,7 +5358,7 @@ const CPP_VARIABLES_EXERCISES = [
     starter:cppMain('bool isReady = false;\ncout << isReady << endl;'),target:"1",
     hints:["เปลี่ยน false เป็น true","true ถูกแสดงเป็น 1"],
     solution:cppMain('bool isReady = true;\ncout << isReady << endl;')}),
-  lx({id:"to-string",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"to-string",title:"Chapter Checkpoint",
     description:"ต่อ string ด้วย + ได้ แต่ตัวเลขต้องแปลงเป็นข้อความก่อนด้วย to_string()",
     example:cppMain('int hp = 90;\nstring msg = "HP " + to_string(hp);\ncout << msg << endl;',["string"]),
     keyPoints:["string + string ได้ข้อความใหม่","\"Level \" + 2 ใช้ไม่ได้","to_string(2) แปลงเป็น \"2\""],
@@ -4772,7 +5369,7 @@ const CPP_VARIABLES_EXERCISES = [
 ];
 
 const CPP_CONDITIONS_EXERCISES = [
-  lx({id:"first-if",title:"First if",
+  lx({scaffold:false,id:"first-if",title:"First if",
     description:"if ตรวจเงื่อนไขในวงเล็บ ถ้าเป็นจริงจะทำคำสั่งในปีกกา",
     example:cppMain('int age = 20;\nif (age >= 18) {\n    cout << "adult" << endl;\n}'),
     keyPoints:["เงื่อนไขอยู่ใน ( )","คำสั่งอยู่ใน { }","ทำเมื่อเงื่อนไขเป็นจริง"],
@@ -4780,7 +5377,7 @@ const CPP_CONDITIONS_EXERCISES = [
     starter:cppMain('int age = 20;\nif (age >= 18) {\n    cout << "" << endl;\n}'),target:"adult",
     hints:["ใส่ adult ในเครื่องหมายคำพูด","เงื่อนไขเป็นจริงอยู่แล้ว"],
     solution:cppMain('int age = 20;\nif (age >= 18) {\n    cout << "adult" << endl;\n}')}),
-  lx({id:"if-else",title:"if / else",
+  lx({scaffold:false,id:"if-else",title:"if / else",
     description:"else ทำงานเมื่อเงื่อนไขของ if เป็นเท็จ",
     example:cppMain('int score = 80;\nif (score >= 50) {\n    cout << "pass" << endl;\n} else {\n    cout << "fail" << endl;\n}'),
     keyPoints:["else ไม่มีเงื่อนไข","ทำเมื่อ if เป็นเท็จ","ทั้งสองบล็อกใช้ { }"],
@@ -4788,7 +5385,7 @@ const CPP_CONDITIONS_EXERCISES = [
     starter:cppMain('int score = 45;\nif (score >= 50) {\n    cout << "pass" << endl;\n} else {\n    cout << "" << endl;\n}'),target:"fail",
     hints:["45 น้อยกว่า 50 จึงเข้า else","ใส่ fail ใน cout ของ else"],
     solution:cppMain('int score = 45;\nif (score >= 50) {\n    cout << "pass" << endl;\n} else {\n    cout << "fail" << endl;\n}')}),
-  lx({id:"else-if",title:"else if",
+  lx({scaffold:false,id:"else-if",title:"else if",
     description:"else if ตรวจเงื่อนไขเพิ่มทีละขั้น และหยุดที่เงื่อนไขแรกที่เป็นจริง",
     example:cppMain('int x = 90;\nif (x >= 80) {\n    cout << "A" << endl;\n} else if (x >= 70) {\n    cout << "B" << endl;\n} else {\n    cout << "C" << endl;\n}'),
     keyPoints:["เรียงเงื่อนไขจากมากไปน้อย","หยุดที่เงื่อนไขแรกที่จริง","else รับกรณีที่เหลือ"],
@@ -4796,7 +5393,7 @@ const CPP_CONDITIONS_EXERCISES = [
     starter:cppMain('int x = 75;\nif (x >= 80) {\n    cout << "A" << endl;\n} else if (x >= 70) {\n    cout << "" << endl;\n} else {\n    cout << "C" << endl;\n}'),target:"B",
     hints:["75 ไม่ถึง 80 แต่ถึง 70","เติม B ใน cout ของ else if"],
     solution:cppMain('int x = 75;\nif (x >= 80) {\n    cout << "A" << endl;\n} else if (x >= 70) {\n    cout << "B" << endl;\n} else {\n    cout << "C" << endl;\n}')}),
-  lx({id:"string-compare",title:"Compare string",
+  lx({scaffold:false,id:"string-compare",title:"Compare string",
     description:"string ใน C++ เปรียบเทียบด้วย == ได้เลย (ต่างจากภาษา C ที่ต้องใช้ strcmp)",
     example:cppMain('string pet = "dog";\nif (pet == "dog") {\n    cout << "woof" << endl;\n}',["string"]),
     keyPoints:["== เทียบเนื้อหาของ string","ตัวพิมพ์ใหญ่เล็กต้องตรงกัน","!= ใช้ตรวจว่าไม่เท่ากัน"],
@@ -4804,7 +5401,7 @@ const CPP_CONDITIONS_EXERCISES = [
     starter:cppMain('string name = "cat";\nif (name == "cat") {\n    cout << "" << endl;\n} else {\n    cout << "who" << endl;\n}',["string"]),target:"meow",
     hints:["เงื่อนไขเป็นจริงอยู่แล้ว","เติม meow ใน cout แรก"],
     solution:cppMain('string name = "cat";\nif (name == "cat") {\n    cout << "meow" << endl;\n} else {\n    cout << "who" << endl;\n}',["string"])}),
-  lx({id:"and-or",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"and-or",title:"Chapter Checkpoint",
     description:"&& (และ) || (หรือ) ! (ไม่) ใช้รวมเงื่อนไข และตัวแปร bool ใช้เป็นเงื่อนไขได้ทันที",
     example:cppMain('int age = 20;\nbool vip = true;\nif (age >= 18 && vip) {\n    cout << "ok" << endl;\n}'),
     keyPoints:["&& ต้องจริงทั้งคู่","|| จริงข้างเดียวก็พอ","bool ใช้เป็นเงื่อนไขได้เลย"],
@@ -4815,7 +5412,7 @@ const CPP_CONDITIONS_EXERCISES = [
 ];
 
 const CPP_LOOPS_EXERCISES = [
-  lx({id:"for-basic",title:"for loop",
+  lx({scaffold:false,id:"for-basic",title:"for loop",
     description:"for (เริ่มต้น; เงื่อนไข; เปลี่ยนค่า) วนซ้ำตามจำนวนรอบ",
     example:cppMain('for (int i = 0; i < 3; i++) {\n    cout << i << endl;\n}'),
     keyPoints:["3 ส่วนคั่นด้วย ;","i < 3 ได้ 0, 1, 2","i++ เพิ่มทีละ 1"],
@@ -4831,7 +5428,7 @@ const CPP_LOOPS_EXERCISES = [
     starter:cppMain('for (int i = 1; i <= 5; i++) {\n    cout << i << endl;\n}'),target:"1 2 3 4 5",
     hints:["ในลูปเปลี่ยน endl เป็น \" \"","เพิ่ม cout << endl; หลังลูป"],
     solution:cppMain('for (int i = 1; i <= 5; i++) {\n    cout << i << " ";\n}\ncout << endl;')}),
-  lx({id:"sum",title:"Accumulate",
+  lx({scaffold:false,id:"sum",title:"Accumulate",
     description:"สะสมค่าใน total ทุกรอบด้วย total += i แล้วแสดงหลังจบลูป",
     example:cppMain('int total = 0;\nfor (int i = 1; i <= 3; i++) {\n    total += i;\n}\ncout << total << endl;'),
     keyPoints:["เริ่ม total = 0","total += i ทุกรอบ","แสดงผลหลังลูป"],
@@ -4839,7 +5436,7 @@ const CPP_LOOPS_EXERCISES = [
     starter:cppMain('int total = 0;\nfor (int i = 1; i <= 10; i++) {\n\n}\ncout << total << endl;'),target:"55",
     hints:["ในลูปเพิ่ม total += i;","1+2+...+10 = 55"],
     solution:cppMain('int total = 0;\nfor (int i = 1; i <= 10; i++) {\n    total += i;\n}\ncout << total << endl;')}),
-  lx({id:"while",title:"while",
+  lx({scaffold:false,id:"while",title:"while",
     description:"while ทำซ้ำขณะเงื่อนไขยังจริง ต้องเปลี่ยนค่าในลูปเพื่อให้หยุด",
     example:cppMain('int n = 3;\nwhile (n > 0) {\n    cout << n << endl;\n    n--;\n}'),
     keyPoints:["n-- ลดทีละ 1","ถ้าไม่ลด จะวนไม่รู้จบ","do { } while (...); ทำก่อนเช็ก"],
@@ -4847,7 +5444,7 @@ const CPP_LOOPS_EXERCISES = [
     starter:cppMain('int n = 3;\nwhile (n > 0) {\n    cout << n << endl;\n\n}'),target:"3\n2\n1",
     hints:["เพิ่ม n--; ในลูป","ถ้าไม่ลด n จะวนไม่รู้จบ"],
     solution:cppMain('int n = 3;\nwhile (n > 0) {\n    cout << n << endl;\n    n--;\n}')}),
-  lx({id:"even",title:"Chapter Checkpoint",
+  lx({scaffold:false,id:"even",title:"Chapter Checkpoint",
     description:"รวมลูปกับเงื่อนไข: เลือกแสดงเฉพาะเลขคู่ (หาร 2 ลงตัว)",
     example:cppMain('for (int i = 0; i < 4; i++) {\n    if (i % 2 == 0) {\n        cout << i << endl;\n    }\n}'),
     keyPoints:["i % 2 == 0 คือเลขคู่","if อยู่ในลูป","ระวังปีกกาให้ครบคู่"],
@@ -4901,7 +5498,7 @@ const CPP_FUNCTIONS_EXERCISES = [
 ];
 
 const CPP_VECTORS_EXERCISES = [
-  lx({id:"index",title:"vector & Index",
+  lx({scaffold:false,id:"index",title:"vector & Index",
     description:"vector คือ array ที่ปรับขนาดได้ ประกาศด้วย vector<ชนิด> ชื่อ = {...}; และเข้าถึงด้วยดัชนีเริ่ม 0",
     example:cppMain('vector<int> nums = {10, 20, 30};\ncout << nums[1] << endl;',["vector"]),
     keyPoints:["#include <vector>","vector<int> เก็บ int หลายค่า","nums[0] คือตัวแรก"],
@@ -4909,7 +5506,7 @@ const CPP_VECTORS_EXERCISES = [
     starter:cppMain('vector<int> nums = {10, 20, 30};\ncout << 0 << endl;',["vector"]),target:"10",
     hints:["ตัวแรกคือ nums[0]","cout << nums[0] << endl;"],
     solution:cppMain('vector<int> nums = {10, 20, 30};\ncout << nums[0] << endl;',["vector"])}),
-  lx({id:"size",title:"size()",
+  lx({scaffold:false,id:"size",title:"size()",
     description:"size() บอกจำนวนสมาชิกใน vector ณ ขณะนั้น",
     example:cppMain('vector<int> items = {1, 2, 3};\ncout << items.size() << endl;',["vector"]),
     keyPoints:["size() มีวงเล็บ","คืนจำนวนสมาชิกปัจจุบัน","ใช้เป็นเงื่อนไขของลูปได้"],
@@ -4987,7 +5584,7 @@ const CPP_CLASSES_EXERCISES = [
 ];
 
 const CPP_FINAL_EXERCISES = [
-  lx({id:"card",title:"Player Card",
+  lx({scaffold:false,id:"card",title:"Player Card",
     description:"เริ่มโปรเจกต์: ทบทวนตัวแปรและการแสดงผลต่อกันด้วย <<",
     example:cppMain('string name = "Milo";\nint level = 5;\ncout << name << " - Lv." << level << endl;',["string"]),
     keyPoints:["<< ต่อข้อความกับตัวเลขได้เลย","ระวังช่องว่างในข้อความ","ไม่ต้องใช้ to_string เมื่อใช้ <<"],
@@ -4995,7 +5592,7 @@ const CPP_FINAL_EXERCISES = [
     starter:cppMain('string name = "Cat";\nint level = 3;\ncout << endl;',["string"]),target:"Cat is level 3",
     hints:['cout << name << " is level " << level << endl;',"ใส่ช่องว่างหน้าและหลัง is level"],
     solution:cppMain('string name = "Cat";\nint level = 3;\ncout << name << " is level " << level << endl;',["string"])}),
-  lx({id:"filter",title:"Filter with Loop",
+  lx({scaffold:false,id:"filter",title:"Filter with Loop",
     description:"ทบทวนลูปและเงื่อนไข: เลือกแสดงเฉพาะค่าที่ผ่านเกณฑ์",
     example:cppMain('for (int i = 0; i < 5; i++) {\n    if (i > 2) {\n        cout << i << endl;\n    }\n}'),
     keyPoints:["for กับ if","เลือกเฉพาะค่าที่ต้องการ","ปีกกาสองชั้น"],
@@ -6988,6 +7585,19 @@ function enterChapterExercises(){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
+/* บทถัดไปในคอร์สปัจจุบัน (null ถ้าเป็นบทสุดท้ายหรือยังล็อกอยู่) */
+function nextUnlockedChapter(){
+  const course = activeCourseArray();
+  const index = course.findIndex(item=>item.id === state.courseLessonId);
+  const next = index >= 0 ? course[index+1] : null;
+  return next && pythonChapterStatus(next,index+1) !== "locked" ? next : null;
+}
+
+function goNextChapter(){
+  const next = nextUnlockedChapter();
+  if(next) openChapter(next.id); else goActiveLearningPath();
+}
+
 function openChapterIntro(){
   const editor = document.getElementById("helloEditor");
   if(editor) saveHelloDraft(editor.value);
@@ -7015,7 +7625,7 @@ function finishChapterIntro(){
     if(firstTime) progress.completedChapters.push(chapterId);
     savePlayer();
     if(firstTime) showToast(`จบบทนำแล้ว · ปลดล็อก ${config.nextChapterName}`);
-    return goActiveLearningPath();
+    return goNextChapter();
   }
   savePlayer();
   enterChapterExercises();
@@ -7246,13 +7856,24 @@ function completedHelloExerciseCount(){
   return activeLessonExercises().filter(exercise=>progress.completedExercises.includes(helloExerciseKey(exercise))).length;
 }
 
+/* ปุ่มขวาล่าง: แบบฝึกถัดไป หรือเมื่อจบบทแล้วพาไปบทถัดไปเลย */
+function renderNextStepButton(exercises,chapterCompleted){
+  const isLast = state.helloExerciseIndex === exercises.length-1;
+  if(!isLast) return '<button class="btn ghost" type="button" onclick="nextHelloExercise()">แบบฝึกถัดไป →</button>';
+  if(!chapterCompleted) return '<button class="btn ghost" type="button" disabled title="ทำแบบฝึกให้ผ่านครบทุกข้อก่อน">บทถัดไป 🔒</button>';
+  const next = nextUnlockedChapter();
+  return next
+    ? `<button class="btn next-chapter-btn" type="button" onclick="goNextChapter()">ไปบทถัดไป: ${escapeHTML(next.title)} →</button>`
+    : '<button class="btn next-chapter-btn" type="button" onclick="goActiveLearningPath()">จบคอร์สแล้ว 🎉 กลับเส้นทางบทเรียน</button>';
+}
+
 function renderHelloFeedback(){
   const feedback = state.helloFeedback;
   if(!feedback) return "";
   if(feedback.solution){
     return `<div class="feedback hint hello-feedback"><strong>${escapeHTML(feedback.message)}</strong><pre><code>${escapeHTML(feedback.solution)}</code></pre></div>`;
   }
-  return `<div class="feedback ${feedback.kind} hello-feedback" role="status">${escapeHTML(feedback.message)}</div>`;
+  return `<div class="feedback ${feedback.kind} hello-feedback" role="status">${escapeHTML(feedback.message)}${renderOutputDiff(feedback.diff)}</div>`;
 }
 
 function renderHelloWorldLesson(){
@@ -7321,7 +7942,7 @@ function renderHelloWorldLesson(){
             <ul class="hello-key-list">${exercise.keyPoints.map(point=>`<li>${escapeHTML(point)}</li>`).join("")}</ul>
           </section>
 
-          <div class="hello-mission"><strong>ภารกิจของคุณ</strong>${escapeHTML(exercise.instruction)}</div>
+          <div class="hello-mission"><strong>ภารกิจของคุณ</strong>${escapeHTML(exercise.instruction)}${!config.web && exercise.target ? renderTargetOutput(exercise.target) : ""}</div>
         </article>
 
         <div class="hello-code-side">
@@ -7355,7 +7976,7 @@ function renderHelloWorldLesson(){
 
           <div class="hello-exercise-nav">
             <button class="btn ghost" type="button" onclick="previousHelloExercise()" ${state.helloExerciseIndex === 0 ? "disabled" : ""}>← แบบฝึกก่อนหน้า</button>
-            <button class="btn ghost" type="button" onclick="nextHelloExercise()" ${state.helloExerciseIndex === exercises.length-1 ? "disabled" : ""}>แบบฝึกถัดไป →</button>
+            ${renderNextStepButton(exercises,chapterCompleted)}
           </div>
         </div>
       </div>
@@ -8630,6 +9251,11 @@ function jInstantiate(clsName,args,ctx,line){
 }
 
 function runJava(code){
+  // ผู้เรียนพิมพ์โครงเอง: ถ้ายังไม่มี class ให้บอกวิธีแก้ตรง ๆ
+  const plain = String(code).replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g," ").replace(/"(?:[^"\\\n]|\\.)*"/g,'""');
+  if(plain.trim() && !/\bclass\s+\w+/.test(plain)){
+    return {output:"",error:"โค้ด Java ต้องอยู่ในโครง public class Main { public static void main(String[] args) { ... } } (กด 🧩 ขอโครงเริ่มต้นได้)",line:1,hasComment:false};
+  }
   const out = [];
   const ctx = {out, steps:0, calls:0, line:0, classes:Object.create(null), global:null, mainClass:null};
   // hook 'new' into evaluator via jEval "new"
@@ -9692,8 +10318,72 @@ function runCFamily(code,lang){
     return {output:out.join(""), error:"รันโค้ดไม่สำเร็จ: " + (e && e.message ? e.message : String(e)), line:ctx.line || 0};
   }
 }
-function runC(code){ return runCFamily(code,"c"); }
-function runCpp(code){ return runCFamily(code,"cpp"); }
+/* ตัวรันในเว็บข้าม #include ไป จึงเช็กโครงที่คอมไพเลอร์จริงบังคับไว้ก่อน (สำคัญเมื่อผู้เรียนพิมพ์โครงเอง) */
+function cStructureProblem(code,lang){
+  const src = String(code).replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g," ").replace(/"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)*'/g,'""');
+  const has = header => new RegExp("#include\\s*<" + header + ">").test(src);
+  const lineOf = pattern => { const m = src.match(pattern); return m ? src.slice(0,m.index).split("\n").length : 1; };
+  if(lang === "c"){
+    if(/\b(printf|puts|scanf)\s*\(/.test(src) && !has("stdio\\.h")) return {error:"ใช้ printf ต้องมี #include <stdio.h> ไว้บรรทัดบนสุด",line:1};
+    if(/\b(strlen|strcpy|strcmp|strcat)\s*\(/.test(src) && !has("string\\.h")) return {error:"ใช้ฟังก์ชันข้อความอย่าง strlen/strcpy ต้องมี #include <string.h>",line:1};
+  }else{
+    if(/\b(cout|cin|endl)\b/.test(src) && !has("iostream")) return {error:"ใช้ cout ต้องมี #include <iostream> ไว้บรรทัดบนสุด",line:1};
+    if(/\bvector\s*</.test(src) && !has("vector")) return {error:"ใช้ vector ต้องมี #include <vector>",line:1};
+    const bareStd = /(^|[^:\w])(cout|cin|endl|string|vector|to_string)\b/;
+    if(bareStd.test(src) && !/using\s+namespace\s+std\s*;/.test(src)) return {error:"ใช้ cout หรือ string โดยไม่เขียน std:: นำหน้า ต้องมี using namespace std; ใต้ #include",line:lineOf(bareStd)};
+  }
+  if(!/\bint\s+main\s*\(/.test(src)) return {error:"ต้องมีฟังก์ชัน int main() { ... } เป็นจุดเริ่มต้นของโปรแกรม",line:1};
+  return null;
+}
+function runCChecked(code,lang){
+  const problem = cStructureProblem(code,lang);
+  return problem ? {output:"",error:problem.error,line:problem.line} : runCFamily(code,lang);
+}
+function runC(code){ return runCChecked(code,"c"); }
+function runCpp(code){ return runCChecked(code,"cpp"); }
+
+/* อธิบายข้อผิดพลาดที่มือใหม่เจอบ่อยให้ชัดกว่าข้อความของตัวรัน (ใช้เมื่อโค้ด error เท่านั้น) */
+const COMMON_KEYWORDS = {
+  python:["print","input","if","elif","else","for","while","def","return","import","in","and","or","not","class","len","range","str","int","float"],
+  java:["System","String","int","double","boolean","if","else","for","while","return","public","class","static","void","new"],
+  c:["printf","int","double","char","float","if","else","for","while","return","struct","void"],
+  cpp:["cout","endl","string","int","double","bool","if","else","for","while","return","class","vector","void"]
+};
+function stripStringsForCheck(line){ return line.replace(/"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/g,'""'); }
+function diagnoseCommonMistake(code,lang,errorLine){
+  const lines = String(code).replace(/\r\n?/g,"\n").split("\n");
+  const order = errorLine >= 1 && errorLine <= lines.length
+    ? [errorLine-1, ...lines.map((_,i)=>i).filter(i=>i !== errorLine-1)]
+    : lines.map((_,i)=>i);
+  const comment = lang === "python" ? "#" : "//";
+  for(const i of order){
+    const raw = lines[i];
+    const line = raw.trim();
+    if(!line || line.startsWith(comment)) continue;
+    const at = message => ({line:i+1,message});
+    if(/[“”‘’]/.test(raw)) return at('ใช้เครื่องหมายคำพูดแบบโค้ง “ ” หรือ ‘ ’ (มักมาจากคีย์บอร์ดมือถือ) ให้เปลี่ยนเป็น " ธรรมดา');
+    if(/[（）]/.test(raw)) return at("ใช้วงเล็บแบบเต็มความกว้าง （ ） ให้เปลี่ยนเป็น ( ) ธรรมดา");
+    const quoteCount = (raw.replace(/\\"/g,"").match(/"/g) || []).length;
+    if(quoteCount % 2 === 1) return at('เครื่องหมายคำพูด " ยังไม่ครบคู่ — ข้อความต้องเปิดและปิดด้วย " เสมอ');
+    const bare = stripStringsForCheck(raw);
+    const words = bare.match(/[A-Za-z_]\w*/g) || [];
+    for(const word of words){
+      const keyword = (COMMON_KEYWORDS[lang] || []).find(k=>k.toLowerCase() === word.toLowerCase() && k !== word);
+      if(keyword) return at(`พิมพ์ "${word}" ผิดตัวพิมพ์เล็ก/ใหญ่ — ต้องเขียนเป็น ${keyword}`);
+    }
+    if(lang === "java"){
+      const sys = raw.match(/\b(system|System)\s*\.\s*(Out|OUT|out)\s*\.\s*(\w+)/);
+      if(sys && !["println","print","printf"].includes(sys[3])) return at(`ต้องเขียนเป็น System.out.println (ตัวพิมพ์เล็ก) แต่พบ ${sys[3]}`);
+    }
+    const opens = (bare.match(/\(/g) || []).length, closes = (bare.match(/\)/g) || []).length;
+    if(opens > closes) return at("ลืมวงเล็บปิด ) — วงเล็บต้องเปิด ( และปิด ) ให้ครบคู่");
+    if(closes > opens) return at("มีวงเล็บปิด ) เกินมา หรือลืมวงเล็บเปิด (");
+    if(lang === "python" && /^print\s+["'\w]/.test(line)) return at('print ต้องมีวงเล็บครอบ เช่น print("Hello")');
+    if(lang === "python" && /^(if|elif|else|for|while|def|class)\b/.test(line) && !line.endsWith(":")) return at("บรรทัดนี้ต้องจบด้วยเครื่องหมาย :");
+    if(lang !== "python" && /^(System\.out\.|printf|cout|return\b)/.test(line) && !/[;{}]\s*$/.test(line)) return at("ลืมเครื่องหมาย ; ปิดท้ายคำสั่ง");
+  }
+  return null;
+}
 
 function executeHelloWorldCode(){
   const exercise = activeLessonExercises()[state.helloExerciseIndex];
@@ -9707,17 +10397,31 @@ function executeHelloWorldCode(){
     return {output:"",error:"",line:0};
   }
   const result = activeLessonConfig().run(code);
+  if(result.error){
+    const hint = diagnoseCommonMistake(code,trackId(),result.line);
+    if(hint){ result.error = hint.message; result.line = hint.line; }
+  }
   state.helloOutput = result.output;
   state.helloError = result.error ? {message:result.error,line:result.line} : "";
   state.helloRan = true;
   return result;
 }
 
+/* Run Code: แสดงผลลัพธ์ และถ้าคำตอบถูกแล้วให้ผ่านทันที (ถ้ายังไม่ถูกจะไม่แจ้งเตือน ให้ผู้เรียนลองต่อ) */
 function runHelloWorldCode(){
+  const config = activeLessonConfig();
+  const exercise = config.exercises[state.helloExerciseIndex];
   const result = executeHelloWorldCode();
   state.helloFeedback = result.error
     ? {kind:"error",message:`ตรวจโค้ดบรรทัด ${result.line}: ${result.error}`}
     : null;
+  if(result.error) return renderHelloWorldLesson();
+  if(config.web){
+    renderHelloWorldLesson();
+    return checkWebAnswer(config,exercise,{silent:true});
+  }
+  const outputCorrect = normalizeOutput(result.output) === normalizeOutput(exercise.target);
+  if(outputCorrect && (!exercise.requiresComment || result.hasComment)) return completeLessonExercise(config,exercise);
   renderHelloWorldLesson();
 }
 
@@ -9732,7 +10436,7 @@ function checkHelloWorldAnswer(){
     return renderHelloWorldLesson();
   }
   if(normalizeOutput(result.output) !== normalizeOutput(exercise.target)){
-    state.helloFeedback = {kind:"error",message:outputMismatchMessage(exercise.target,result.output)};
+    state.helloFeedback = {kind:"error",message:outputMismatchMessage(exercise.target,result.output),diff:outputDiff(exercise.target,result.output)};
     return renderHelloWorldLesson();
   }
   if(exercise.requiresComment && !result.hasComment){
@@ -9889,12 +10593,13 @@ function evaluateWebExercise(config,exercise,code){
   });
 }
 
-async function checkWebAnswer(config,exercise){
+async function checkWebAnswer(config,exercise,{silent = false} = {}){
   const editor = document.getElementById("helloEditor");
   const code = editor ? editor.value : (state.helloDrafts[exercise.id] || "");
   saveHelloDraft(code);
   state.helloRan = true;
   if(!code.trim()){
+    if(silent) return;
     state.helloFeedback = {kind:"error",message:"ยังไม่มีโค้ด ลองเขียนตามภารกิจก่อนแล้วค่อยกดตรวจคำตอบ"};
     return renderHelloWorldLesson();
   }
@@ -9905,6 +10610,7 @@ async function checkWebAnswer(config,exercise){
   if(state.screen !== "pythonHelloWorld" || state.courseLessonId !== lessonId || state.helloExerciseIndex !== exerciseIndex) return;
   const failed = results.filter(result=>!result.ok);
   if(failed.length){
+    if(silent) return;   // กด "แสดงผล" แต่ยังไม่ผ่าน: แค่แสดง Preview ไม่ต้องแจ้งเตือน
     state.helloFeedback = {kind:"error",message:`ผ่าน ${results.length-failed.length}/${results.length} เงื่อนไข · ${failed[0].message}`};
     return renderHelloWorldLesson();
   }
@@ -10006,6 +10712,67 @@ function outputMismatchMessage(target,actual){
     ? ` จำนวนบรรทัดยังไม่ตรง (ของคุณ ${actualLines.length} บรรทัด)`
     : "";
   return `Output ยังไม่ตรงที่บรรทัด ${lineText}.${countNote} ตรวจตัวพิมพ์ ช่องว่างด้านหน้า และการขึ้นบรรทัดใหม่อีกครั้ง`;
+}
+
+/* แสดงข้อความให้เห็นเว้นวรรคชัด ๆ: ช่องว่างเป็นจุดจาง (·) และไฮไลต์ตัวอักษรตำแหน่ง mark */
+function visibleWhitespaceHTML(text,mark){
+  const chars = Array.from(String(text));
+  let html = chars.map((ch,index)=>{
+    const shown = ch === " " ? '<span class="ws">·</span>' : ch === "\t" ? '<span class="ws">→</span>' : escapeHTML(ch);
+    return index === mark ? `<span class="diff-mark">${shown}</span>` : shown;
+  }).join("");
+  if(mark === chars.length) html += '<span class="diff-mark diff-missing">▯</span>';
+  return html || '<span class="ws-empty">(บรรทัดว่าง)</span>';
+}
+
+function renderTargetOutput(target){
+  const lines = normalizeOutput(target).split("\n");
+  return `<div class="target-output">
+    <div class="target-output-head"><span>Output ที่ต้องได้</span><small><span class="ws">·</span> = เว้นวรรค 1 ช่อง</small></div>
+    <pre>${lines.map(line=>visibleWhitespaceHTML(line,-1)).join("\n")}</pre>
+  </div>`;
+}
+
+function describeCharDiff(expected,actual){
+  if(expected === undefined) return `มีตัวอักษรเกินมา: "${actual === " " ? "เว้นวรรค" : actual}"`;
+  if(actual === undefined) return expected === " " ? "ขาดเว้นวรรคตรงนี้" : `ขาด "${expected}" ตรงนี้`;
+  if(expected === " ") return `ตรงนี้ต้องเว้นวรรค แต่ของคุณเป็น "${actual}"`;
+  if(actual === " ") return `มีเว้นวรรคเกิน ตรงนี้ต้องเป็น "${expected}"`;
+  if(expected.toLowerCase() === actual.toLowerCase()) return `ตัวพิมพ์เล็ก/ใหญ่ไม่ตรง ต้องเป็น "${expected}"`;
+  return `ตรงนี้ต้องเป็น "${expected}" แต่ของคุณเป็น "${actual}"`;
+}
+
+/* หาบรรทัดและตำแหน่งตัวอักษรแรกที่ไม่ตรง เพื่อแสดงเทียบกันให้ผู้เรียนเห็น */
+function outputDiff(target,actual){
+  const expectedLines = normalizeOutput(target).split("\n");
+  const actualLines = normalizeOutput(actual).split("\n");
+  const longest = Math.max(expectedLines.length,actualLines.length);
+  for(let index=0;index<longest;index++){
+    const want = expectedLines[index], got = actualLines[index];
+    if(want === got) continue;
+    if(want === undefined) return {line:index+1,want:null,got,col:0,note:"มีบรรทัดเกินมา"};
+    if(got === undefined) return {line:index+1,want,got:null,col:0,note:"ยังขาดบรรทัดนี้"};
+    const a = Array.from(want), b = Array.from(got);
+    let col = 0;
+    while(col < a.length && col < b.length && a[col] === b[col]) col++;
+    const restWant = a.slice(col).join(""), restGot = b.slice(col).join("");
+    let note;
+    if(col < a.length && restGot === a.slice(col+1).join("")) note = describeCharDiff(a[col],undefined);      // ขาดไป 1 ตัว
+    else if(col < b.length && restWant === b.slice(col+1).join("")) note = describeCharDiff(undefined,b[col]); // เกินมา 1 ตัว
+    else note = describeCharDiff(a[col],b[col]);
+    return {line:index+1,want,got,col,note};
+  }
+  return null;
+}
+
+function renderOutputDiff(diff){
+  if(!diff) return "";
+  const row = (label,text) => `<div class="output-diff-row"><span>${label}</span><code>${text === null ? '<span class="ws-empty">(ไม่มีบรรทัดนี้)</span>' : visibleWhitespaceHTML(text,diff.col)}</code></div>`;
+  return `<div class="output-diff">
+    <div class="output-diff-title">บรรทัด ${diff.line}: ${escapeHTML(diff.note)}</div>
+    ${row("ต้องได้",diff.want)}
+    ${row("ของคุณ",diff.got)}
+  </div>`;
 }
 
 function outputChallengeKey(language,index){ return OUTPUT_CHALLENGES[language][index].id; }
